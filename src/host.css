@@ -1,0 +1,14 @@
+#qr-container {
+  max-width: 300px;
+}
+
+#board div {
+  width: 200px;
+  height: 200px;
+  border: 1px solid black;
+  border-radius: 20px;
+  font-size: 150%;
+  background-color: lightblue;
+  text-align: center;
+  display: inline-block;
+}

@@ -1,0 +1,3 @@
+# Dummy SSL certs for local HTTPS dev
+server.crt
+server.key
