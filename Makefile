@@ -16,7 +16,7 @@ endif
 
 .PHONY: test
 test:
-	@echo Sorry, no tests yet
+	src/js/tests.js
 
 server.key server.crt:
 	openssl req \
