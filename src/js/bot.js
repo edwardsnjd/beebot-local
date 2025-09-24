@@ -5,15 +5,17 @@ export const Directions = { Up: 0, Right: 1, Down: 2, Left: 3 }
 
 export const createBot = () => {
   let position = { x: 0, y: 0 }
-  let orientation = Directions.Up
+  let orientation = { d: Directions.Up, angle: 0 }
 
   const move = ({ x, y }) => {
-    position = { x: position.x + x, y: position.y + y }
-    return notify({ position, orientation })
+    position.x += x
+    position.y += y
+    return notify({ position, angle: orientation.angle })
   }
   const rotate = (change) => {
-    orientation = (orientation + 4 + change) % 4
-    return notify({ position, orientation })
+    orientation.d = (orientation.d + 4 + change) % 4
+    orientation.angle += change * 90
+    return notify({ position, angle: orientation.angle })
   }
 
   const step = 20
@@ -24,28 +26,24 @@ export const createBot = () => {
     [Directions.Left]: { x: -1, y: 0 },
   }
   const forward = () => {
-    const change = orientationVectors[orientation]
-    return move({ x: -step * change.x, y: step * change.y })
+    const change = orientationVectors[orientation.d]
+    return move({ x: step * change.x, y: step * change.y })
   }
   const backward = () => {
-    const change = orientationVectors[orientation]
+    const change = orientationVectors[orientation.d]
     return move({ x: -step * change.x, y: -step * change.y })
   }
   const right = () => rotate(1)
   const left = () => rotate(-1)
   const pause = () => sleep(1000)
 
-  const listeners = []
+  let listeners = []
   const subscribe = (cb) => {
     listeners.push(cb)
-    return () => { listeners = listeners.filter(l => l !== cb) }
+    return () => listeners = listeners.filter(l => l !== cb)
   }
-  const notify = (state) => {
-    return listeners.reduce(
-      (acc, next) => acc.then(() => next(state)),
-      Promise.resolve(),
-    )
-  }
+  const notify = (state) =>
+    Promise.all(listeners.map(l => l(state)))
 
   return { forward, right, backward, left, pause, subscribe }
 }

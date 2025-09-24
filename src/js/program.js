@@ -1,22 +1,23 @@
-export const buildProgram = (b) => {
+export const buildProgram = () => {
   let program = []
-  const addToPrg = (cmd) => program.push(cmd)
-  const resetPrg = () => program = []
-  const runPrg = (m) =>
-    program
-      .map(botCommand)
-      .reduce((acc, next) => acc.then(next), Promise.resolve())
-      .then(() => m.send({ type: 'done' }))
+  const current = () => program
+  const add = (cmd) => {
+    program.push(cmd)
+    notify(program)
+  }
+  const reset = () => {
+    program = []
+    notify(program)
+  }
 
-  const botCommand = (cmd) =>
-    ({
-      'up': () => b.forward(),
-      'right': () => b.right(),
-      'down': () => b.backward(),
-      'left': () => b.left(),
-      'pause': () => b.pause(),
-    })[cmd]
+  let listeners = []
+  const subscribe = (cb) => {
+    listeners.push(cb)
+    return () => listeners = listeners.filter(l => l !== cb)
+  }
+  const notify = (state) =>
+    Promise.all(listeners.map(l => l(state)))
 
-  return { addToPrg, resetPrg, runPrg }
+  return { current, add, reset, subscribe }
 }
 

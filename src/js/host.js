@@ -20,6 +20,7 @@ const $remoteLink = document.getElementById('remoteLink')
 const $qr = document.getElementById('qr-container')
 const $bot = document.querySelector('.beebot')
 const $controls = document.getElementById('controls')
+const $program = document.getElementById('program')
 
 // Update remote link to include secret
 const remoteUrl = `${$remoteLink.href}?secret=${secret}`
@@ -59,23 +60,48 @@ signals.onMessage(async (envelope) => {
   }
 })
 
+/** Run all given promises in sequence. */
+Promise.seq = (ps) =>
+  ps.reduce((acc, next) => acc.then(next), Promise.resolve())
+
 // Game
 
 const b = createBot()
 
 const p = buildProgram(b)
 
+const runPrg = (m) =>
+  Promise.seq(p.current().map(parseCommand))
+    .then(() => m.send({ type: 'done' }))
+
+const Commands = {
+  Up: 'U',
+  Right: 'R',
+  Down: 'D',
+  Left: 'L',
+  Pause: 'P',
+}
+
+const parseCommand = (cmd) =>
+  ({
+    [Commands.Up]: () => b.forward(),
+    [Commands.Right]: () => b.right(),
+    [Commands.Down]: () => b.backward(),
+    [Commands.Left]: () => b.left(),
+    [Commands.Pause]: () => b.pause(),
+  })[cmd]
+
 const states = {
   initial: 'idle',
   idle: {
     on: {
-      add: { action: (e) => p.addToPrg(e.cmd) },
-      reset: { action: () => p.resetPrg() },
+      add: { action: (e) => p.add(e.cmd) },
+      reset: { action: () => p.reset() },
       go: { target: 'running' },
     },
   },
   running: {
-    enter: (m) => p.runPrg(m),
+    enter: runPrg,
     on: {
       done: { target: 'idle' ,}
     },
@@ -95,31 +121,35 @@ const controlsUi = ($el) => {
   const reset = $el.querySelector('.reset')
   const pause = $el.querySelector('.pause')
 
-  up.addEventListener('click', () => m.send({ type: 'add', cmd: 'up' }))
-  right.addEventListener('click', () => m.send({ type: 'add', cmd: 'right' }))
-  down.addEventListener('click', () => m.send({ type: 'add', cmd: 'down' }))
-  left.addEventListener('click', () => m.send({ type: 'add', cmd: 'left' }))
-  pause.addEventListener('click', () => m.send({ type: 'add', cmd: 'pause' }))
+  up.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Up }))
+  right.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Right }))
+  down.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Down }))
+  left.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Left }))
+  pause.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Pause }))
   go.addEventListener('click', () => m.send({ type: 'go' }))
   reset.addEventListener('click', () => m.send({ type: 'reset' }))
 }
-
 controlsUi($controls)
 
 // UI: Bot
-const botUi = ($el) => ({ position, orientation }) => {
-  const rotation = {
-    [Directions.Up]: '0turn',
-    [Directions.Right]: '0.25turn',
-    [Directions.Down]: '0.50turn',
-    [Directions.Left]: '0.75turn',
-  }[orientation]
+const botUi = ($el) => ({ position, angle }) => {
   $el.style.transition = '1000ms ease-in-out'
   $el.style.transform = `
     translate(${position.x}px, ${position.y}px)
-    rotate(${rotation})
+    rotate(${angle}deg)
   `
-  return sleep(1005)
+  return sleep(1010)
 }
+const renderBot = botUi($bot)
+b.subscribe(renderBot)
 
-b.subscribe(botUi($bot))
+// UI: Program
+const programUi = ($el) => (program) => {
+  const text = program.length > 0
+    ? program.join(', ')
+    : '(no program)'
+  $el.innerText = text
+}
+const renderProgram = programUi($program)
+renderProgram(p.current())
+p.subscribe(renderProgram)
