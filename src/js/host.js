@@ -2,6 +2,7 @@ import { openSocketForGame, signalsForLocal, signalsForPair } from './signalling
 import { connectToPeer, openChannel } from './peers.js'
 import { machine } from './machine.js'
 import { createBot, Directions, sleep } from './bot.js'
+import { buildProgram } from './program.js'
 
 // Per connection constants
 const secret = new URL(window.location).searchParams.get('secret')
@@ -62,35 +63,19 @@ signals.onMessage(async (envelope) => {
 
 const b = createBot()
 
-const botCommand = (cmd) =>
-  ({
-    'up': () => b.forward(),
-    'right': () => b.right(),
-    'down': () => b.backward(),
-    'left': () => b.left(),
-    'pause': () => b.pause(),
-  })[cmd]
-
-let program = []
-const addToPrg = (cmd) => program.push(cmd)
-const resetPrg = () => program = []
-const runPrg = (m) =>
-  program
-    .map(botCommand)
-    .reduce((acc, next) => acc.then(next), Promise.resolve())
-    .then(() => m.send({ type: 'done' }))
+const p = buildProgram(b)
 
 const states = {
   initial: 'idle',
   idle: {
     on: {
-      add: { action: (e) => addToPrg(e.cmd) },
-      reset: { action: resetPrg },
+      add: { action: (e) => p.addToPrg(e.cmd) },
+      reset: { action: () => p.resetPrg() },
       go: { target: 'running' },
     },
   },
   running: {
-    enter: runPrg,
+    enter: (m) => p.runPrg(m),
     on: {
       done: { target: 'idle' ,}
     },
