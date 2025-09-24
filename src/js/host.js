@@ -146,10 +146,17 @@ b.subscribe(renderBot)
 // UI: Program
 const programUi = ($el) => (program) => {
   const text = program.length > 0
-    ? program.join(', ')
-    : '(no program)'
-  $el.innerText = text
+    ? program.map(actionUi).join(', ')
+    : ''
+  $el.innerText = `Program: ${text}`
 }
+const actionUi = (cmd) => ({
+  [Commands.Up]: '⬆️',
+  [Commands.Right]: '➡️',
+  [Commands.Down]: '⬇️',
+  [Commands.Left]: '⬅️',
+  [Commands.Pause]: '⏸️',
+})[cmd]
 const renderProgram = programUi($program)
 renderProgram(p.current())
 p.subscribe(renderProgram)
