@@ -13,6 +13,9 @@ const remoteId = `p-${Date.now()}`
 const channelLabel = 'chat'
 const channelId = 100
 
+// DOM
+const $controls = document.getElementById('controls')
+
 // Set up P2P message channel to host
 const socket = await openSocketForGame(gameId, secret)
 const hostSignals = signalsForPair(socket, remoteId, hostId)
@@ -26,17 +29,34 @@ hostChannel.onMessage((msg) => {
   document.getElementById('log').innerText += msg
   document.getElementById('log').innerText += '\n'
 })
-setInterval(() => hostChannel.send(`hello from ${remoteId}`), 10000)
 
-function requestOrientationPermission() const throttle = (fn, delay) => {
-  let lastRun = null
-  return (...args) => {
+const sendEvent = (e) =>
+  hostChannel.send(e)
 
-    const now = Date.now()
-    const sinceLast = lastRun ? now - lastRun : delay
-    if (sinceLast >= delay) {
-      lastRun = now
-      fn(...args)
-    }
-  }
+const Commands = {
+  Up: 'U',
+  Right: 'R',
+  Down: 'D',
+  Left: 'L',
+  Pause: 'P',
 }
+
+// UI: Controls
+const controlsUi = ($el) => {
+  const up = $el.querySelector('.up')
+  const right = $el.querySelector('.right')
+  const down = $el.querySelector('.down')
+  const left = $el.querySelector('.left')
+  const go = $el.querySelector('.go')
+  const reset = $el.querySelector('.reset')
+  const pause = $el.querySelector('.pause')
+
+  up.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Up }))
+  right.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Right }))
+  down.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Down }))
+  left.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Left }))
+  pause.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Pause }))
+  go.addEventListener('click', () => sendEvent({ type: 'go' }))
+  reset.addEventListener('click', () => sendEvent({ type: 'reset' }))
+}
+controlsUi($controls)

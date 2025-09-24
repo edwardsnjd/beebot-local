@@ -27,43 +27,6 @@ const remoteUrl = `${$remoteLink.href}?secret=${secret}`
 $remoteLink.href = remoteUrl
 $qr.innerHTML = `<qr-code contents='${remoteUrl}'></qr-code>`
 
-// Start signalling
-const socket = await openSocketForGame(gameId, secret)
-
-const addRemote = async (remoteId) => {
-  console.log('adding remote', remoteId)
-
-  const remoteSignals = signalsForPair(socket, hostId, remoteId)
-  const remoteConnection = await connectToPeer(remoteSignals)
-  const remoteChannel = await openChannel(remoteConnection, channelLabel, channelId)
-
-  // OK, ready for app
-  remoteChannel.onMessage(async (msg) => {
-    console.log('remote message:', msg)
-  })
-  // setInterval(() => remoteChannel.send('hello from host'), 5000)
-}
-
-const handlePing = async (envelope) => {
-  const { from: remoteId, payload: _msg } = envelope
-  console.log('received ping, starting new remote', remoteId)
-  await addRemote(remoteId)
-}
-
-const signals = signalsForLocal(socket, hostId)
-
-signals.onMessage(async (envelope) => {
-  const { payload: msg } = envelope
-  switch (msg.type) {
-    case 'ping': return await handlePing(envelope)
-    default: console.log('Ignoring message', envelope)
-  }
-})
-
-/** Run all given promises in sequence. */
-Promise.seq = (ps) =>
-  ps.reduce((acc, next) => acc.then(next), Promise.resolve())
-
 // Game
 
 const b = createBot()
@@ -160,3 +123,41 @@ const actionUi = (cmd) => ({
 const renderProgram = programUi($program)
 renderProgram(p.current())
 p.subscribe(renderProgram)
+
+// Start signalling
+const socket = await openSocketForGame(gameId, secret)
+
+const addRemote = async (remoteId) => {
+  console.log('adding remote', remoteId)
+
+  const remoteSignals = signalsForPair(socket, hostId, remoteId)
+  const remoteConnection = await connectToPeer(remoteSignals)
+  const remoteChannel = await openChannel(remoteConnection, channelLabel, channelId)
+
+  // OK, ready for app
+  remoteChannel.onMessage(async (msg) => {
+    m.send(msg)
+  })
+  // setInterval(() => remoteChannel.send('hello from host'), 5000)
+}
+
+const handlePing = async (envelope) => {
+  const { from: remoteId, payload: _msg } = envelope
+  console.log('received ping, starting new remote', remoteId)
+  await addRemote(remoteId)
+}
+
+const signals = signalsForLocal(socket, hostId)
+
+signals.onMessage(async (envelope) => {
+  const { payload: msg } = envelope
+  switch (msg.type) {
+    case 'ping': return await handlePing(envelope)
+    default: console.log('Ignoring message', envelope)
+  }
+})
+
+/** Run all given promises in sequence. */
+Promise.seq = (ps) =>
+  ps.reduce((acc, next) => acc.then(next), Promise.resolve())
+
