@@ -1,0 +1,51 @@
+export const sleep = (delay) =>
+  new Promise((resolve) => setTimeout(resolve, delay))
+
+export const Directions = { Up: 0, Right: 1, Down: 2, Left: 3 }
+
+export const createBot = () => {
+  let position = { x: 0, y: 0 }
+  let orientation = Directions.Up
+
+  const move = ({ x, y }) => {
+    position = { x: position.x + x, y: position.y + y }
+    return notify({ position, orientation })
+  }
+  const rotate = (change) => {
+    orientation = (orientation + 4 + change) % 4
+    return notify({ position, orientation })
+  }
+
+  const step = 20
+  const orientationVectors = {
+    [Directions.Up]: { x: 0, y: -1 },
+    [Directions.Right]: { x: 1, y: 0 },
+    [Directions.Down]: { x: 0, y: 1 },
+    [Directions.Left]: { x: -1, y: 0 },
+  }
+  const forward = () => {
+    const change = orientationVectors[orientation]
+    return move({ x: -step * change.x, y: step * change.y })
+  }
+  const backward = () => {
+    const change = orientationVectors[orientation]
+    return move({ x: -step * change.x, y: -step * change.y })
+  }
+  const right = () => rotate(1)
+  const left = () => rotate(-1)
+  const pause = () => sleep(1000)
+
+  const listeners = []
+  const subscribe = (cb) => {
+    listeners.push(cb)
+    return () => { listeners = listeners.filter(l => l !== cb) }
+  }
+  const notify = (state) => {
+    return listeners.reduce(
+      (acc, next) => acc.then(() => next(state)),
+      Promise.resolve(),
+    )
+  }
+
+  return { forward, right, backward, left, pause, subscribe }
+}

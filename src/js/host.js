@@ -1,6 +1,7 @@
 import { openSocketForGame, signalsForLocal, signalsForPair } from './signalling.js'
 import { connectToPeer, openChannel } from './peers.js'
 import { machine } from './machine.js'
+import { createBot, Directions, sleep } from './bot.js'
 
 // Per connection constants
 const secret = new URL(window.location).searchParams.get('secret')
@@ -59,6 +60,17 @@ signals.onMessage(async (envelope) => {
 
 // Game
 
+const b = createBot()
+
+const botCommand = (cmd) =>
+  ({
+    'up': () => b.forward(),
+    'right': () => b.right(),
+    'down': () => b.backward(),
+    'left': () => b.left(),
+    'pause': () => b.pause(),
+  })[cmd]
+
 let program = []
 const addToPrg = (cmd) => program.push(cmd)
 const resetPrg = () => program = []
@@ -88,49 +100,29 @@ const states = {
 const m = machine(states)
 m.start()
 
-// BOT
+// UI: Controls
+const controlsUi = ($el) => {
+  const up = $el.querySelector('.up')
+  const right = $el.querySelector('.right')
+  const down = $el.querySelector('.down')
+  const left = $el.querySelector('.left')
+  const go = $el.querySelector('.go')
+  const reset = $el.querySelector('.reset')
+  const pause = $el.querySelector('.pause')
 
-const sleep = (delay) =>
-  new Promise((resolve) => setTimeout(resolve, delay))
-
-const Directions = { Up: 0, Right: 1, Down: 2, Left: 3 }
-
-const createBot = (cb) => {
-  let position = { x: 0, y: 0 }
-  let orientation = Directions.Up
-
-  const move = ({ x, y }) => {
-    position = { x: position.x + x, y: position.y + y }
-    return cb({ position, orientation })
-  }
-  const rotate = (change) => {
-    orientation = (orientation + 4 + change) % 4
-    return cb({ position, orientation })
-  }
-
-  const step = 20
-  const orientationVectors = {
-    [Directions.Up]: { x: 0, y: -1 },
-    [Directions.Right]: { x: 1, y: 0 },
-    [Directions.Down]: { x: 0, y: 1 },
-    [Directions.Left]: { x: -1, y: 0 },
-  }
-  const forward = () => {
-    const change = orientationVectors[orientation]
-    return move({ x: -step * change.x, y: step * change.y })
-  }
-  const backward = () => {
-    const change = orientationVectors[orientation]
-    return move({ x: -step * change.x, y: -step * change.y })
-  }
-  const right = () => rotate(1)
-  const left = () => rotate(-1)
-  const pause = () => sleep(1000)
-
-  return { forward, right, backward, left, pause }
+  up.addEventListener('click', () => m.send({ type: 'add', cmd: 'up' }))
+  right.addEventListener('click', () => m.send({ type: 'add', cmd: 'right' }))
+  down.addEventListener('click', () => m.send({ type: 'add', cmd: 'down' }))
+  left.addEventListener('click', () => m.send({ type: 'add', cmd: 'left' }))
+  pause.addEventListener('click', () => m.send({ type: 'add', cmd: 'pause' }))
+  go.addEventListener('click', () => m.send({ type: 'go' }))
+  reset.addEventListener('click', () => m.send({ type: 'reset' }))
 }
 
-const updateUi = ($el) => ({ position, orientation }) => {
+controlsUi($controls)
+
+// UI: Bot
+const botUi = ($el) => ({ position, orientation }) => {
   const rotation = {
     [Directions.Up]: '0turn',
     [Directions.Right]: '0.25turn',
@@ -145,34 +137,4 @@ const updateUi = ($el) => ({ position, orientation }) => {
   return sleep(1005)
 }
 
-const b = createBot(updateUi($bot))
-
-const botCommand = (cmd) =>
-  ({
-    'up': () => b.forward(),
-    'right': () => b.right(),
-    'down': () => b.backward(),
-    'left': () => b.left(),
-    'pause': () => b.pause(),
-  })[cmd]
-
-// UI: Controls
-const ui = ($controls) => {
-  const up = $controls.querySelector('.up')
-  const right = $controls.querySelector('.right')
-  const down = $controls.querySelector('.down')
-  const left = $controls.querySelector('.left')
-  const go = $controls.querySelector('.go')
-  const reset = $controls.querySelector('.reset')
-  const pause = $controls.querySelector('.pause')
-
-  up.addEventListener('click', () => m.send({ type: 'add', cmd: 'up' }))
-  right.addEventListener('click', () => m.send({ type: 'add', cmd: 'right' }))
-  down.addEventListener('click', () => m.send({ type: 'add', cmd: 'down' }))
-  left.addEventListener('click', () => m.send({ type: 'add', cmd: 'left' }))
-  pause.addEventListener('click', () => m.send({ type: 'add', cmd: 'pause' }))
-  go.addEventListener('click', () => m.send({ type: 'go' }))
-  reset.addEventListener('click', () => m.send({ type: 'reset' }))
-}
-
-ui($controls)
+b.subscribe(botUi($bot))
