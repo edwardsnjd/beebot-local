@@ -51,16 +51,23 @@ const socket = await openSocketForGame(gameId, secret)
 
 // Listen for remotes
 const config = { socket, hostId, channelLabel, channelId }
+const remotes = []
 listenForRemotes(config, (remote) => {
   const { id, channel } = remote
   console.log(`Remote connected: ${id}`)
+
+  remotes.push(remote)
+  console.log('Remotes', remotes)
 
   // Forward messages from remote to state machine
   channel.onMessage((msg) => m.send(msg))
 
   // Forward all state changes to remote
   channel.send({ state: m.current() })
-  m.subscribe((state) => channel.send({ state }))
+  m.subscribe((state) => {
+    console.log('updating remote state', id, state)
+    channel.send({ state })
+  })
 })
 
 // UI: DOM
