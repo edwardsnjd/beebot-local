@@ -14,6 +14,7 @@ export const controlsUi = ($el, sendEvent) => {
   const go = $el.querySelector('.go')
   const reset = $el.querySelector('.reset')
   const pause = $el.querySelector('.pause')
+  const home = $el.querySelector('.home')
 
   up.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Up }))
   right.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Right }))
@@ -22,6 +23,7 @@ export const controlsUi = ($el, sendEvent) => {
   pause.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Pause }))
   go.addEventListener('click', () => sendEvent({ type: 'go' }))
   reset.addEventListener('click', () => sendEvent({ type: 'reset' }))
+  home.addEventListener('click', () => sendEvent({ type: 'home' }))
 
   return (state) => {
     if (state === 'running') $el.classList.add('disabled')

@@ -124,6 +124,9 @@ export const createBot = () => {
   const right = () => rotate(1)
   const left = () => rotate(-1)
   const pause = () => sleep(1000)
+  const goHome = () => Promise.resolve()
+    .then(() => move({ x: -position.x, y: -position.y }))
+    .then(() => rotate(-orientation.angle / 90))
 
-  return { forward, right, backward, left, pause, subscribe }
+  return { forward, right, backward, left, pause, goHome, subscribe }
 }

@@ -33,6 +33,7 @@ const m = createMachine({
     on: {
       add: { action: (e) => p.add(e.cmd) },
       reset: { action: () => p.reset() },
+      home: { action: () => b.goHome() },
       go: { target: 'running' },
     },
   },

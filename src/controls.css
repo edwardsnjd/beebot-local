@@ -47,7 +47,7 @@
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: repeat(3, 1fr);
   grid-template-areas:
-    ".     up   ."
+    ".     up   home"
     "left  go   right"
     "reset down pause";
   grid-gap: 2vmin;
@@ -60,3 +60,4 @@
 .pause { grid-area: pause; }
 .go    { grid-area: go; }
 .reset { grid-area: reset; }
+.home  { grid-area: home; }
