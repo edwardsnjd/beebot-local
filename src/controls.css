@@ -1,4 +1,38 @@
+/* Overlay */
+
 #controls {
+  position: relative; /* To allow absolute positioning of overlay */
+}
+
+#controls-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(255, 255, 255, 0.4); /* semi-transparent layer */
+  backdrop-filter: blur(5px);            /* Blur everything behind */
+  -webkit-backdrop-filter: blur(5px);    /* Safari support */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;                   /* Let clicks pass through if needed */
+  opacity: 0;
+  transition: opacity 0.3s linear;
+  user-select: none;
+  border-radius: 1em;
+  font-size: 3em;
+}
+
+#controls.disabled #controls-buttons {
+  pointer-events: none; /* Disable nav interaction */
+}
+
+#controls.disabled #controls-overlay {
+  opacity: 1;           /* Show overlay when disabled */
+  pointer-events: auto; /* Prevent interaction with nav below */
+}
+
+/* Button grid */
+
+#controls-buttons {
   /* Fixed grid for buttons */
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -17,3 +51,4 @@
 .pause { grid-area: pause; }
 .go    { grid-area: go; }
 .reset { grid-area: reset; }
+

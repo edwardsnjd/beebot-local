@@ -92,8 +92,15 @@ const controlsUi = ($el) => {
   pause.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Pause }))
   go.addEventListener('click', () => m.send({ type: 'go' }))
   reset.addEventListener('click', () => m.send({ type: 'reset' }))
+
+  return (state) => {
+    if (state === 'running') $el.classList.add('disabled')
+    else $el.classList.remove('disabled')
+  }
 }
-controlsUi($controls)
+const renderControls = controlsUi($controls)
+renderControls(m.current())
+m.subscribe(renderControls)
 
 // UI: Bot
 const botUi = ($el) => ({ position, angle }) => {
@@ -128,8 +135,10 @@ renderProgram(p.current())
 p.subscribe(renderProgram)
 
 // UI: Status
-const statusUi = ($el) => (state) =>
-  $el.textContent = (state === 'running' ? '🟢' : '⚪')
+const statusUi = ($el) => (state) => {
+  if (state === 'running') $el.classList.add('running')
+  else $el.classList.remove('running')
+}
 const renderStatus = statusUi($status)
 renderStatus(m.current())
 m.subscribe(renderStatus)

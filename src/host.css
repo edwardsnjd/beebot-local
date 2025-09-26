@@ -87,4 +87,10 @@ main > * {
 
 #status {
   font-size: 9px;
+  opacity: 0;
+  transition: opacity 0.3s linear;
+}
+
+#status.running {
+  opacity: 1;
 }
