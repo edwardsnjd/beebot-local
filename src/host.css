@@ -11,7 +11,7 @@ main {
 @media (orientation: landscape) {
   main {
     grid-template-columns: 2fr 1fr 1fr;
-    grid-template-rows: fit-content auto;
+    grid-template-rows: auto;
     grid-template-areas:
       "board program program"
       "board controls remote";
@@ -62,7 +62,9 @@ main {
 
 #board {
   background-color: lightblue;
-  max-height: 90vmin;
+  padding: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .beebot {
