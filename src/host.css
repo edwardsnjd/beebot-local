@@ -14,7 +14,7 @@
 }
 
 .beebot {
-  border: 1px solid red;
   transform-origin: center;
   transform-box: fill-box;
+  transition-timing-function: ease-in-out;
 }

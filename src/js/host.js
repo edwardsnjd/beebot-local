@@ -96,12 +96,14 @@ controlsUi($controls)
 
 // UI: Bot
 const botUi = ($el) => ({ position, angle }) => {
-  $el.style.transition = '1000ms ease-in-out'
+  const animationDuration = 1000
+  $el.style.transitionDuration = `${animationDuration}ms`
   $el.style.transform = `
     translate(${position.x}px, ${position.y}px)
     rotate(${angle}deg)
   `
-  return sleep(1010)
+  // HACK: Add 20ms to animation to ensure it's finished
+  return sleep(animationDuration + 20)
 }
 const renderBot = botUi($bot)
 b.subscribe(renderBot)
