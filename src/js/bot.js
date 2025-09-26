@@ -1,6 +1,3 @@
-export const sleep = (delay) =>
-  new Promise((resolve) => setTimeout(resolve, delay))
-
 export const Directions = { Up: 0, Right: 1, Down: 2, Left: 3 }
 
 export const createBot = () => {

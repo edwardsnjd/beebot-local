@@ -10,6 +10,9 @@ export const buildProgram = () => {
     notify(program)
   }
 
+  const interpret = (actionFn) =>
+    Promise.seq(program.map(actionFn))
+
   let listeners = []
   const subscribe = (cb) => {
     listeners.push(cb)
@@ -18,6 +21,6 @@ export const buildProgram = () => {
   const notify = (state) =>
     Promise.all(listeners.map(l => l(state)))
 
-  return { current, add, reset, subscribe }
+  return { current, add, reset, interpret, subscribe }
 }
 

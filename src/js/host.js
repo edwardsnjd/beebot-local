@@ -1,8 +1,10 @@
-import { openSocketForGame, signalsForLocal, signalsForPair } from './signalling.js'
-import { connectToPeer, openChannel } from './peers.js'
+import { openSocketForGame } from './signalling.js'
+import { listenForRemotes } from './peers.js'
 import { machine } from './machine.js'
-import { createBot, Directions, sleep } from './bot.js'
+import { createBot } from './bot.js'
 import { buildProgram } from './program.js'
+import { Commands } from './core.js'
+import * as ui from './ui.js'
 
 // Per connection constants
 const secret = new URL(window.location).searchParams.get('secret')
@@ -15,47 +17,20 @@ const gameId = 'game1'
 const channelLabel = 'chat'
 const channelId = 100
 
-// DOM
-const $remoteLink = document.getElementById('remoteLink')
-const $qr = document.getElementById('qr-container')
-const $bot = document.querySelector('.beebot')
-const $controls = document.getElementById('controls')
-const $program = document.getElementById('program')
-const $status = document.getElementById('status')
-
-// Update remote link to include secret
-const remoteUrl = `${$remoteLink.href}?secret=${secret}`
-$remoteLink.href = remoteUrl
-$qr.innerHTML = `<qr-code contents='${remoteUrl}'></qr-code>`
-
 // Game
 
 const b = createBot()
-
 const p = buildProgram(b)
 
-const runPrg = (m) =>
-  Promise.seq(p.current().map(parseCommand))
-    .then(() => m.send({ type: 'done' }))
+const onCommand = (cmd) => ({
+  [Commands.Up]: () => b.forward(),
+  [Commands.Right]: () => b.right(),
+  [Commands.Down]: () => b.backward(),
+  [Commands.Left]: () => b.left(),
+  [Commands.Pause]: () => b.pause(),
+}[cmd])
 
-const Commands = {
-  Up: 'U',
-  Right: 'R',
-  Down: 'D',
-  Left: 'L',
-  Pause: 'P',
-}
-
-const parseCommand = (cmd) =>
-  ({
-    [Commands.Up]: () => b.forward(),
-    [Commands.Right]: () => b.right(),
-    [Commands.Down]: () => b.backward(),
-    [Commands.Left]: () => b.left(),
-    [Commands.Pause]: () => b.pause(),
-  })[cmd]
-
-const states = {
+const m = machine({
   initial: 'idle',
   idle: {
     on: {
@@ -65,119 +40,60 @@ const states = {
     },
   },
   running: {
-    enter: runPrg,
+    enter: (m) => p.interpret(onCommand)
+      .then(() => m.send({ type: 'done' })),
     on: {
-      done: { target: 'idle' ,}
+      done: { target: 'idle', }
     },
   },
-}
-
-const m = machine(states)
+})
 m.start()
-
-// UI: Controls
-const controlsUi = ($el) => {
-  const up = $el.querySelector('.up')
-  const right = $el.querySelector('.right')
-  const down = $el.querySelector('.down')
-  const left = $el.querySelector('.left')
-  const go = $el.querySelector('.go')
-  const reset = $el.querySelector('.reset')
-  const pause = $el.querySelector('.pause')
-
-  up.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Up }))
-  right.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Right }))
-  down.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Down }))
-  left.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Left }))
-  pause.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Pause }))
-  go.addEventListener('click', () => m.send({ type: 'go' }))
-  reset.addEventListener('click', () => m.send({ type: 'reset' }))
-
-  return (state) => {
-    if (state === 'running') $el.classList.add('disabled')
-    else $el.classList.remove('disabled')
-  }
-}
-const renderControls = controlsUi($controls)
-renderControls(m.current())
-m.subscribe(renderControls)
-
-// UI: Bot
-const botUi = ($el) => ({ position, angle }) => {
-  const animationDuration = 1000
-  $el.style.transitionDuration = `${animationDuration}ms`
-  $el.style.transform = `
-    translate(${position.x}px, ${position.y}px)
-    rotate(${angle}deg)
-  `
-  // HACK: Add 20ms to animation to ensure it's finished
-  return sleep(animationDuration + 20)
-}
-const renderBot = botUi($bot)
-b.subscribe(renderBot)
-
-// UI: Program
-const programUi = ($el) => (program) => {
-  const text = program.length > 0
-    ? program.map(actionUi).join(', ')
-    : ''
-  $el.innerText = `Program: ${text}`
-}
-const actionUi = (cmd) => ({
-  [Commands.Up]: '⬆️',
-  [Commands.Right]: '➡️',
-  [Commands.Down]: '⬇️',
-  [Commands.Left]: '⬅️',
-  [Commands.Pause]: '⏸️',
-})[cmd]
-const renderProgram = programUi($program)
-renderProgram(p.current())
-p.subscribe(renderProgram)
-
-// UI: Status
-const statusUi = ($el) => (state) => {
-  if (state === 'running') $el.classList.add('running')
-  else $el.classList.remove('running')
-}
-const renderStatus = statusUi($status)
-renderStatus(m.current())
-m.subscribe(renderStatus)
 
 // Start signalling
 const socket = await openSocketForGame(gameId, secret)
 
-const addRemote = async (remoteId) => {
-  console.log('adding remote', remoteId)
+// Listen for remotes
+const config = { socket, hostId, channelLabel, channelId }
+listenForRemotes(config, (remote) => {
+  const { id, channel } = remote
+  console.log(`Remote connected: ${id}`)
 
-  const remoteSignals = signalsForPair(socket, hostId, remoteId)
-  const remoteConnection = await connectToPeer(remoteSignals)
-  const remoteChannel = await openChannel(remoteConnection, channelLabel, channelId)
+  // Forward messages from remote to state machine
+  channel.onMessage((msg) => m.send(msg))
 
-  // OK, ready for app
-  remoteChannel.onMessage(async (msg) => {
-    m.send(msg)
-  })
-  remoteChannel.send({ state: m.current() })
-  m.subscribe((state) => remoteChannel.send({ state }))
-}
-
-const handlePing = async (envelope) => {
-  const { from: remoteId, payload: _msg } = envelope
-  console.log('received ping, starting new remote', remoteId)
-  await addRemote(remoteId)
-}
-
-const signals = signalsForLocal(socket, hostId)
-
-signals.onMessage(async (envelope) => {
-  const { payload: msg } = envelope
-  switch (msg.type) {
-    case 'ping': return await handlePing(envelope)
-    default: console.log('Ignoring message', envelope)
-  }
+  // Forward all state changes to remote
+  channel.send({ state: m.current() })
+  m.subscribe((state) => channel.send({ state }))
 })
 
-/** Run all given promises in sequence. */
-Promise.seq = (ps) =>
-  ps.reduce((acc, next) => acc.then(next), Promise.resolve())
+// UI: DOM
+const $remoteLink = document.getElementById('remoteLink')
+const $qr = document.getElementById('qr-container')
+const $bot = document.querySelector('.beebot')
+const $controls = document.getElementById('controls')
+const $program = document.getElementById('program')
+const $status = document.getElementById('status')
 
+// UI: Remotes
+const remoteUrl = `${$remoteLink.href}?secret=${secret}`
+ui.remoteLinkUi($remoteLink)(remoteUrl)
+ui.remoteQrUi($qr)(remoteUrl)
+
+// UI: Controls
+const renderControls = ui.controlsUi($controls, m)
+renderControls(m.current())
+m.subscribe(renderControls)
+
+// UI: Bot
+const renderBot = ui.botUi($bot)
+b.subscribe(renderBot)
+
+// UI: Program
+const renderProgram = ui.programUi($program)
+renderProgram(p.current())
+p.subscribe(renderProgram)
+
+// UI: Status
+const renderStatus = ui.statusUi($status)
+renderStatus(m.current())
+m.subscribe(renderStatus)

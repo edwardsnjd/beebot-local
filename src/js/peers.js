@@ -1,4 +1,35 @@
-import { WebSocketSignals } from './signalling.js'
+import { WebSocketSignals, signalsForLocal, signalsForPair } from './signalling.js'
+
+/**
+ * Listen on the given socket for incoming requests to pair and call
+ * back with each new remote.
+ *
+ * This currently only calls back with successful connections.
+ *
+ * @type {Remote => void} onRemote
+ */
+export const listenForRemotes = (config, onRemote) => {
+  const { socket, hostId, channelLabel, channelId } = config
+
+  const addRemote = async (id) => {
+    const signals = signalsForPair(socket, hostId, id)
+    const connection = await connectToPeer(signals)
+    const channel = await openChannel(connection, channelLabel, channelId)
+    return { id, channel }
+  }
+
+  const signals = signalsForLocal(socket, hostId)
+  signals.onMessage(async (envelope) => {
+    const { payload: msg } = envelope
+    switch (msg.type) {
+      case 'ping':
+        console.log('received ping, starting new remote', envelope.from)
+        return onRemote(await addRemote(envelope.from))
+      default:
+        console.log('Ignoring message', envelope)
+    }
+  })
+}
 
 /**
  * Build and return a P2P connection to a peer via the given signalling channel.
