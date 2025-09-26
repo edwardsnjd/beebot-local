@@ -1,9 +1,6 @@
 import { openSocketForGame } from './signalling.js'
 import { listenForRemotes } from './peers.js'
-import { machine } from './machine.js'
-import { createBot } from './bot.js'
-import { buildProgram } from './program.js'
-import { Commands } from './core.js'
+import { createMachine, createBot, createProgram, Commands } from './core.js'
 import * as ui from './ui.js'
 
 // Per connection constants
@@ -20,7 +17,7 @@ const channelId = 100
 // Game
 
 const b = createBot()
-const p = buildProgram(b)
+const p = createProgram(b)
 
 const onCommand = (cmd) => ({
   [Commands.Up]: () => b.forward(),
@@ -30,7 +27,7 @@ const onCommand = (cmd) => ({
   [Commands.Pause]: () => b.pause(),
 }[cmd])
 
-const m = machine({
+const m = createMachine({
   initial: 'idle',
   idle: {
     on: {
@@ -69,8 +66,8 @@ listenForRemotes(config, (remote) => {
 // UI: DOM
 const $remoteLink = document.getElementById('remoteLink')
 const $qr = document.getElementById('qr-container')
-const $bot = document.querySelector('.beebot')
 const $controls = document.getElementById('controls')
+const $bot = document.querySelector('.beebot')
 const $program = document.getElementById('program')
 const $status = document.getElementById('status')
 
