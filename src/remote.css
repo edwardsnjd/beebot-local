@@ -15,3 +15,8 @@ main {
 #controls button {
   font-size: 8.5vmin;
 }
+
+#controls-overlay .indicator {
+  font-size: 12em;
+}
+

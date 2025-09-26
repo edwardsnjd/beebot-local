@@ -22,7 +22,10 @@
   transition: opacity 0.3s linear;
   user-select: none;
   border-radius: 1em;
-  font-size: 3em;
+}
+
+#controls-overlay .indicator {
+  font-size: 5em;
 }
 
 #controls.disabled #controls-buttons {
@@ -37,6 +40,8 @@
 /* Button grid */
 
 #controls-buttons {
+  height: 100%;
+  width: 100%;
   /* Fixed grid for buttons */
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -55,4 +60,3 @@
 .pause { grid-area: pause; }
 .go    { grid-area: go; }
 .reset { grid-area: reset; }
-
