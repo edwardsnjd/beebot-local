@@ -20,23 +20,26 @@ main {
   font-size: 12em;
 }
 
-#disconnected {
+#connecting {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(255, 255, 255, 0.4); /* semi-transparent layer */
   backdrop-filter: blur(5px);            /* Blur everything behind */
   -webkit-backdrop-filter: blur(5px);    /* Safari support */
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   pointer-events: auto;
   opacity: 1;
   transition: opacity 0.3s linear;
   user-select: none;
+}
 
+#connecting .indicator {
   font-size: 6em;
 }
 
-.connected #disconnected {
+#connecting.connected {
   display: none;
 }

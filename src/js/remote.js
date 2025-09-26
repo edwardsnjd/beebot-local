@@ -57,14 +57,18 @@ remote.connect()
 // OK, ready for app
 
 // UI: DOM
-const $body = document.querySelector('body')
+const $connecting = document.getElementById('connecting')
 const $controls = document.getElementById('controls')
 
 // UI: Connection
-const connectionUi = ($el) => (connection) => {
-  $el.classList[connection ? 'add' : 'remove']('connected')
+const connectionUi = ($el, gameId) => {
+  const $info = $el.querySelector('.info')
+  return (connection) => {
+    $el.classList[connection ? 'add' : 'remove']('connected')
+    $info.innerText = `Game: ${gameId}`
+  }
 }
-const renderConnection = connectionUi($body)
+const renderConnection = connectionUi($connecting, gameId)
 renderConnection(remote.current())
 remote.subscribe(renderConnection)
 
