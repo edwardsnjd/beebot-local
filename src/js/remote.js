@@ -14,15 +14,20 @@ const remoteId = `p-${Date.now()}`
 const channelLabel = 'chat'
 const channelId = 100
 
-// Start signalling
-const socket = await openSocketForGame(gameId, secret)
+const connectToHost = async () => {
+  // Start signalling
+  const socket = await openSocketForGame(gameId, secret)
 
-// Set up P2P message channel to host
-const config = { socket, hostId, channelLabel, channelId }
-const { channel: hostChannel } = await createRemote(config, remoteId, hostId, true)
+  // Set up P2P message channel to host
+  const config = { socket, hostId, channelLabel, channelId }
+  const remote = await createRemote(config, remoteId, hostId, true)
 
-// No need to keep socket open
-socket.close()
+  // No need to keep socket open
+  socket.close()
+
+  return remote
+}
+const { channel: hostChannel } = await connectToHost()
 
 // OK, ready for app
 
