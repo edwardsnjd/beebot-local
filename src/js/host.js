@@ -157,7 +157,8 @@ const addRemote = async (remoteId) => {
   remoteChannel.onMessage(async (msg) => {
     m.send(msg)
   })
-  // setInterval(() => remoteChannel.send('hello from host'), 5000)
+  remoteChannel.send({ state: m.current() })
+  m.subscribe((state) => remoteChannel.send({ state }))
 }
 
 const handlePing = async (envelope) => {

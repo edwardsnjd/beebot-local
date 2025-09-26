@@ -24,12 +24,6 @@ const hostChannel = await openChannel(hostConnection, channelLabel, channelId)
 hostSignals.close()
 
 // OK, ready for app
-hostChannel.onMessage((msg) => {
-  console.log('host message:', msg)
-  document.getElementById('log').innerText += msg
-  document.getElementById('log').innerText += '\n'
-})
-
 const sendEvent = (e) =>
   hostChannel.send(e)
 
@@ -58,5 +52,15 @@ const controlsUi = ($el) => {
   pause.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Pause }))
   go.addEventListener('click', () => sendEvent({ type: 'go' }))
   reset.addEventListener('click', () => sendEvent({ type: 'reset' }))
+
+  return (state) => {
+    if (state === 'running') $el.classList.add('disabled')
+    else $el.classList.remove('disabled')
+  }
 }
-controlsUi($controls)
+const renderControls = controlsUi($controls)
+renderControls('idle')
+hostChannel.onMessage((msg) => {
+  console.log('host message:', msg)
+  if (msg.state) renderControls(msg.state)
+})
