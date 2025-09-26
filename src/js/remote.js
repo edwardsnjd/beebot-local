@@ -1,5 +1,6 @@
 import { openSocketForGame, signalsForPair } from './signalling.js'
 import { connectToPeer, openChannel } from './peers.js'
+import { controlsUi } from './ui.js'
 
 // Per connection constants
 const secret = new URL(window.location).searchParams.get('secret')
@@ -13,9 +14,6 @@ const remoteId = `p-${Date.now()}`
 const channelLabel = 'chat'
 const channelId = 100
 
-// DOM
-const $controls = document.getElementById('controls')
-
 // Set up P2P message channel to host
 const socket = await openSocketForGame(gameId, secret)
 const hostSignals = signalsForPair(socket, remoteId, hostId)
@@ -24,41 +22,12 @@ const hostChannel = await openChannel(hostConnection, channelLabel, channelId)
 hostSignals.close()
 
 // OK, ready for app
-const sendEvent = (e) =>
-  hostChannel.send(e)
 
-const Commands = {
-  Up: 'U',
-  Right: 'R',
-  Down: 'D',
-  Left: 'L',
-  Pause: 'P',
-}
+// UI: DOM
+const $controls = document.getElementById('controls')
 
 // UI: Controls
-const controlsUi = ($el) => {
-  const up = $el.querySelector('.up')
-  const right = $el.querySelector('.right')
-  const down = $el.querySelector('.down')
-  const left = $el.querySelector('.left')
-  const go = $el.querySelector('.go')
-  const reset = $el.querySelector('.reset')
-  const pause = $el.querySelector('.pause')
-
-  up.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Up }))
-  right.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Right }))
-  down.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Down }))
-  left.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Left }))
-  pause.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Pause }))
-  go.addEventListener('click', () => sendEvent({ type: 'go' }))
-  reset.addEventListener('click', () => sendEvent({ type: 'reset' }))
-
-  return (state) => {
-    if (state === 'running') $el.classList.add('disabled')
-    else $el.classList.remove('disabled')
-  }
-}
-const renderControls = controlsUi($controls)
+const renderControls = controlsUi($controls, (cmd) => hostChannel.send(cmd))
 renderControls('idle')
 hostChannel.onMessage((msg) => {
   console.log('host message:', msg)

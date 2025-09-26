@@ -77,7 +77,7 @@ ui.remoteLinkUi($remoteLink)(remoteUrl)
 ui.remoteQrUi($qr)(remoteUrl)
 
 // UI: Controls
-const renderControls = ui.controlsUi($controls, m)
+const renderControls = ui.controlsUi($controls, (cmd) => m.send(cmd))
 renderControls(m.current())
 m.subscribe(renderControls)
 

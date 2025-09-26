@@ -6,7 +6,7 @@ export const remoteLinkUi = ($el) => (url) =>
 export const remoteQrUi = ($el) => (url) =>
   $el.innerHTML = `<qr-code contents='${url}'></qr-code>`
 
-export const controlsUi = ($el, m) => {
+export const controlsUi = ($el, sendEvent) => {
   const up = $el.querySelector('.up')
   const right = $el.querySelector('.right')
   const down = $el.querySelector('.down')
@@ -15,13 +15,13 @@ export const controlsUi = ($el, m) => {
   const reset = $el.querySelector('.reset')
   const pause = $el.querySelector('.pause')
 
-  up.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Up }))
-  right.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Right }))
-  down.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Down }))
-  left.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Left }))
-  pause.addEventListener('click', () => m.send({ type: 'add', cmd: Commands.Pause }))
-  go.addEventListener('click', () => m.send({ type: 'go' }))
-  reset.addEventListener('click', () => m.send({ type: 'reset' }))
+  up.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Up }))
+  right.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Right }))
+  down.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Down }))
+  left.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Left }))
+  pause.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Pause }))
+  go.addEventListener('click', () => sendEvent({ type: 'go' }))
+  reset.addEventListener('click', () => sendEvent({ type: 'reset' }))
 
   return (state) => {
     if (state === 'running') $el.classList.add('disabled')
