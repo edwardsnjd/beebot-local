@@ -14,8 +14,10 @@ const remoteId = `p-${Date.now()}`
 const channelLabel = 'chat'
 const channelId = 100
 
-// Set up P2P message channel to host
+// Start signalling
 const socket = await openSocketForGame(gameId, secret)
+
+// Set up P2P message channel to host
 const hostSignals = signalsForPair(socket, remoteId, hostId)
 const hostConnection = await connectToPeer(hostSignals, true)
 const hostChannel = await openChannel(hostConnection, channelLabel, channelId)
