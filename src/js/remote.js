@@ -4,11 +4,10 @@ import { controlsUi } from './ui.js'
 import { eventHub } from './core.js'
 
 // Per connection constants
-const secret = new URL(window.location).searchParams.get('secret')
-
-// TODO: Source these from the environment
-const hostId = 'host'       // From host?
-const gameId = 'game1'      // From host?
+const params = new URL(window.location).searchParams
+const secret = params.get('secret')
+const hostId = params.get('host')
+const gameId = hostId
 const remoteId = `p-${Date.now()}`
 
 // Well known constants

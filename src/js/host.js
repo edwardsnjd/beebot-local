@@ -6,9 +6,9 @@ import * as ui from './ui.js'
 // Per connection constants
 const secret = new URL(window.location).searchParams.get('secret')
 
-// TODO: Source these from the environment
-const hostId = 'host'
-const gameId = 'game1'
+// TODO: Source these from the environment?
+const hostId = `h-${Date.now()}`
+const gameId = hostId
 
 // Well known constants
 const channelLabel = 'chat'
@@ -72,7 +72,7 @@ const $program = document.getElementById('program')
 const $status = document.getElementById('status')
 
 // UI: Remotes
-const remoteUrl = `${$remoteLink.href}?secret=${secret}`
+const remoteUrl = `${$remoteLink.href}?host=${hostId}&secret=${secret}`
 ui.remoteLinkUi($remoteLink)(remoteUrl)
 ui.remoteQrUi($qr)(remoteUrl)
 
