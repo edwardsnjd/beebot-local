@@ -1,0 +1,19 @@
+#controls {
+  /* Fixed grid for buttons */
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-areas:
+    ".     up   ."
+    "left  go   right"
+    "reset down pause";
+  grid-gap: 2vmin;
+}
+
+.up    { grid-area: up; }
+.right { grid-area: right; }
+.down  { grid-area: down; }
+.left  { grid-area: left; }
+.pause { grid-area: pause; }
+.go    { grid-area: go; }
+.reset { grid-area: reset; }

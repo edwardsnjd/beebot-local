@@ -1,3 +1,5 @@
+@import "controls.css";
+
 /* Layout */
 
 main {
@@ -60,6 +62,7 @@ main {
 
 #board {
   background-color: lightblue;
+  max-height: 90vmin;
 }
 
 .beebot {
@@ -72,4 +75,12 @@ main > * {
   border: 1px solid grey;
   border-radius: 1em;
   padding: 1em;
+}
+
+#controls button {
+  font-size: 4vmin;
+}
+
+#program {
+  font-size: 3vmin;
 }

@@ -1,28 +1,17 @@
-#controls {
-  /* Fill view */
-  width: 95vw;
-  height: 95vh;
-  margin: auto;
+@import "controls.css";
 
-  /* Fixed grid for buttons */
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  grid-template-areas:
-    ".     up   ."
-    "left  go   right"
-    "reset down pause";
-  grid-gap: 2vh 2vw;
+main {
+  width: 95vw;
+  height: 90vh;
+  margin: auto;
 }
 
-.up    { grid-area: up; }
-.right { grid-area: right; }
-.down  { grid-area: down; }
-.left  { grid-area: left; }
-.pause { grid-area: pause; }
-.go    { grid-area: go; }
-.reset { grid-area: reset; }
+#controls {
+  width: 95%;
+  height: 95%;
+  margin: auto;
+}
 
 #controls button {
-  font-size: 10vmin;
+  font-size: 8.5vmin;
 }
