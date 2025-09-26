@@ -19,13 +19,23 @@ export const machine = (config) => {
     if (target) enter(target)
   }
 
-  const result = { current, start, send }
+  let listeners = []
+  const subscribe = (cb) => {
+    listeners.push(cb)
+    return () => listeners = listeners.filter(l => l !== cb)
+  }
+  const notify = (state) =>
+    Promise.all(listeners.map(l => l(state)))
+
+  const result = { current, start, send, subscribe }
 
   const enter = (newState) => {
     state = newState
 
     const onEnter = config[state]?.enter
     if (onEnter) onEnter(result)
+
+    notify(state)
   }
 
   return result

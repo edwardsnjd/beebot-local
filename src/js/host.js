@@ -21,6 +21,7 @@ const $qr = document.getElementById('qr-container')
 const $bot = document.querySelector('.beebot')
 const $controls = document.getElementById('controls')
 const $program = document.getElementById('program')
+const $status = document.getElementById('status')
 
 // Update remote link to include secret
 const remoteUrl = `${$remoteLink.href}?secret=${secret}`
@@ -125,6 +126,13 @@ const actionUi = (cmd) => ({
 const renderProgram = programUi($program)
 renderProgram(p.current())
 p.subscribe(renderProgram)
+
+// UI: Status
+const statusUi = ($el) => (state) =>
+  $el.textContent = (state === 'running' ? '🟢' : '⚪')
+const renderStatus = statusUi($status)
+renderStatus(m.current())
+m.subscribe(renderStatus)
 
 // Start signalling
 const socket = await openSocketForGame(gameId, secret)
