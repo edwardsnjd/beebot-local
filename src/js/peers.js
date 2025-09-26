@@ -9,26 +9,32 @@ import { WebSocketSignals, signalsForLocal, signalsForPair } from './signalling.
  * @type {Remote => void} onRemote
  */
 export const listenForRemotes = (config, onRemote) => {
-  const { socket, hostId, channelLabel, channelId } = config
-
-  const addRemote = async (id) => {
-    const signals = signalsForPair(socket, hostId, id)
-    const connection = await connectToPeer(signals)
-    const channel = await openChannel(connection, channelLabel, channelId)
-    return { id, channel }
-  }
+  const { socket, hostId } = config
 
   const signals = signalsForLocal(socket, hostId)
+
   signals.onMessage(async (envelope) => {
     const { payload: msg } = envelope
     switch (msg.type) {
       case 'ping':
         console.log('received ping, starting new remote', envelope.from)
-        return onRemote(await addRemote(envelope.from))
+        const remote = await createRemote(config, hostId, envelope.from)
+        return onRemote(remote)
       default:
         console.log('Ignoring message', envelope)
     }
   })
+}
+
+/**
+ * Create a remote, optionally initiating the connection.
+ */
+export const createRemote = async (config, localId, remoteId, caller=false) => {
+  const { socket, channelLabel, channelId } = config
+  const signals = signalsForPair(socket, localId, remoteId)
+  const connection = await connectToPeer(signals, caller)
+  const channel = await openChannel(connection, channelLabel, channelId)
+  return { id: remoteId, channel }
 }
 
 /**

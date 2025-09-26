@@ -1,5 +1,5 @@
-import { openSocketForGame, signalsForPair } from './signalling.js'
-import { connectToPeer, openChannel } from './peers.js'
+import { openSocketForGame } from './signalling.js'
+import { createRemote } from './peers.js'
 import { controlsUi } from './ui.js'
 
 // Per connection constants
@@ -18,10 +18,11 @@ const channelId = 100
 const socket = await openSocketForGame(gameId, secret)
 
 // Set up P2P message channel to host
-const hostSignals = signalsForPair(socket, remoteId, hostId)
-const hostConnection = await connectToPeer(hostSignals, true)
-const hostChannel = await openChannel(hostConnection, channelLabel, channelId)
-hostSignals.close()
+const config = { socket, hostId, channelLabel, channelId }
+const { channel: hostChannel } = await createRemote(config, remoteId, hostId, true)
+
+// No need to keep socket open
+socket.close()
 
 // OK, ready for app
 
