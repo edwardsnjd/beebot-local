@@ -5,35 +5,35 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="host.css" />
-    <title>Bumpers: Host</title>
+    <title>Beebot: Host</title>
   </head>
 
   <body>
-    <svg id="board" viewBox="-100 -100 200 200">
-      <g class="beebot">
-        <text text-anchor="middle" dominant-baseline="middle">⏫</text>
-      </g>
-    </svg>
 
-    <div id="program">Program: </div>
+    <main>
+      <svg id="board" viewBox="-100 -100 200 200">
+        <g class="beebot">
+          <text text-anchor="middle" dominant-baseline="middle">⏫</text>
+        </g>
+      </svg>
 
-    <div id="controls">
-      <button class="up">⬆️</button>
-      <button class="right">➡️</button>
-      <button class="down">⬇️</button>
-      <button class="left">⬅️</button>
-      <button class="pause">⏸️</button>
-      <button class="go">🟢</button>
-      <button class="reset">🗑️</button>
-    </div>
+      <div id="program">Program: </div>
 
-    <footer>
-      <a id="remoteLink" href="remote.html" target="_blank">Add a remote</a>
-    </footer>
+      <div id="controls">
+        <button class="up">⬆️</button>
+        <button class="right">➡️</button>
+        <button class="down">⬇️</button>
+        <button class="left">⬅️</button>
+        <button class="pause">⏸️</button>
+        <button class="go">🟢</button>
+        <button class="reset">🗑️</button>
+      </div>
 
-    <div id="qr-container"></div>
-
-    <pre><code id="log"></code></pre>
+      <div id="remote">
+        <div id="qr-container"></div>
+        <a id="remoteLink" href="remote.html" target="_blank">Add a remote</a>
+      </div>
+    </main>
 
     <script src="js/host.js" type="module"></script>
     <script src="https://unpkg.com/@bitjson/qr-code@1.0.2/dist/qr-code.js"></script>

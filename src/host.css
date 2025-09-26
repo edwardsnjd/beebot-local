@@ -1,20 +1,75 @@
-#qr-container {
-  max-width: 300px;
+/* Layout */
+
+main {
+  display: grid;
+  gap: 1rem;
 }
 
+/* Landscape layout */
+@media (orientation: landscape) {
+  main {
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: fit-content auto;
+    grid-template-areas:
+      "board program program"
+      "board controls remote";
+  }
+}
+
+/* Portrait layout */
+@media (orientation: portrait) {
+  main {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "board board"
+      "program program"
+      "controls remote";
+  }
+}
+
+/* Small portrait layout */
+@media (orientation: portrait) and (max-width: 400px) {
+  main {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "board"
+      "program"
+      "controls"
+      "remote";
+  }
+}
+
+/* Small landscape layout */
+@media (orientation: landscape) and (max-width: 400px) {
+  main {
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto;
+    grid-template-areas:
+      "board controls"
+      "program program"
+      "remote .";
+  }
+}
+
+#board { grid-area: board; }
+#program { grid-area: program; }
+#controls { grid-area: controls; }
+#remote { grid-area: remote; }
+
 #board {
-  width: 80vw;
-  height: 80vh;
-  border: 1px solid black;
-  border-radius: 20px;
-  font-size: 150%;
   background-color: lightblue;
-  text-align: center;
-  display: inline-block;
 }
 
 .beebot {
   transform-origin: center;
   transform-box: fill-box;
   transition-timing-function: ease-in-out;
+}
+
+main > * {
+  border: 1px solid grey;
+  border-radius: 1em;
+  padding: 1em;
 }
