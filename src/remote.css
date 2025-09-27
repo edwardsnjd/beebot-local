@@ -43,3 +43,14 @@ main {
 #connecting.connected {
   display: none;
 }
+
+#connecting .failed {
+  display: none;
+}
+
+#connecting.failed .connecting {
+  display: none;
+}
+#connecting.failed .failed {
+  display: block;
+}

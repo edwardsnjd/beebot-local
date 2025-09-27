@@ -63,8 +63,17 @@ const $controls = document.getElementById('controls')
 // UI: Connection
 const connectionUi = ($el, gameId) => {
   const $info = $el.querySelector('.info')
-  return (connection) => {
-    $el.classList[connection ? 'add' : 'remove']('connected')
+  return (remote) => {
+    switch (remote?.connection?.connectionState) {
+      case 'connected':
+        $el.classList.add('connected')
+        $el.classList.remove('failed')
+        return
+      case 'failed':
+        $el.classList.remove('connected')
+        $el.classList.add('failed')
+        return
+    }
     $info.innerText = `Game: ${gameId}`
   }
 }
