@@ -100,11 +100,11 @@ export async function connectToPeer(signals, caller = false) {
   // Create dummy data channel to force ICE candidate negotiation
   connection.createDataChannel('dummy', { negotiated: true, id: 0 })
 
-  connection.onicecandidate = ({ candidate }) => {
+  connection.addEventListener('icecandidate', ({ candidate }) => {
     console.log('icecandidate', candidate)
     if (!candidate) return
     signals.send({ type: 'ice-candidate', candidate })
-  }
+  })
 
   if (caller) {
     await ping()
@@ -124,8 +124,7 @@ export async function connectToPeer(signals, caller = false) {
   })
 
   return new Promise((resolve, reject) => {
-    connection.onconnectionstatechange = () => {
-      console.log('onconnectionstatechange', connection.connectionState)
+    connection.addEventListener('connectionstatechange', () => {
       switch (connection.connectionState) {
         case "connected":
           return resolve(connection)
@@ -134,7 +133,7 @@ export async function connectToPeer(signals, caller = false) {
         case "failed":
           return reject()
       }
-    }
+    })
   })
 }
 
@@ -149,10 +148,10 @@ export async function connectToPeer(signals, caller = false) {
 export async function openChannel(connection, label, id) {
   const channel = connection.createDataChannel(label, { negotiated: true, id})
   return new Promise((resolve, _reject) => {
-    channel.onopen = () => {
+    channel.addEventListener('open', () => {
       console.log('Data channel open')
       resolve(channel)
-    }
+    })
   }).then(channel => new DataChannelMessages(channel))
 }
 
