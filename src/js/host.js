@@ -2,6 +2,7 @@ import { openSocketForGame } from './signalling.js'
 import { listenForRemotes } from './peers.js'
 import { createMachine, createBot, createProgram, Commands } from './core.js'
 import * as ui from './ui.js'
+import { eventHub } from './core.js'
 
 // Per connection constants
 const secret = new URL(window.location).searchParams.get('secret')
@@ -47,18 +48,48 @@ const m = createMachine({
 })
 m.start()
 
+const connectionsManager = () => {
+  let remotes = []
+
+  const { subscribe, notify } = eventHub()
+
+  const current = () =>
+    remotes.map(r => ({
+      id: r.id,
+      channel: {
+        id: r.channel.channel.id,
+        label: r.channel.channel.label,
+        readyState: r.channel.channel.readyState,
+      },
+      connection: {
+        connectionState: r.connection.connectionState,
+        signalingState: r.connection.signalingState,
+      },
+    }))
+
+  const add = (remote) => {
+    remotes.push(remote)
+    remote.connection.addEventListener('connectionstatechange', () => notify(current()))
+    remote.connection.addEventListener('signalingstatechange', () => notify(current()))
+    remote.connection.addEventListener('datachannel', () => notify(current()))
+    remote.channel.channel.addEventListener('close', () => notify(current()))
+    remote.channel.channel.addEventListener('error', () => notify(current()))
+    notify(current())
+  }
+
+  return { current, add, subscribe }
+}
+const mgr = connectionsManager()
+
 // Start signalling
 const socket = await openSocketForGame(gameId, secret)
 
 // Listen for remotes
 const config = { socket, hostId, channelLabel, channelId }
-const remotes = []
 listenForRemotes(config, (remote) => {
   const { id, channel } = remote
   console.log(`Remote connected: ${id}`)
-
-  remotes.push(remote)
-  console.log('Remotes', remotes)
+  mgr.add(remote)
 
   // Forward messages from remote to state machine
   channel.onMessage((msg) => m.send(msg))
@@ -78,6 +109,7 @@ const $controls = document.getElementById('controls')
 const $bot = document.querySelector('.beebot')
 const $program = document.getElementById('program')
 const $status = document.getElementById('status')
+const $connections = document.getElementById('connections')
 
 // UI: Remotes
 const remoteUrl = `${$remoteLink.href}?host=${hostId}&secret=${secret}`
@@ -102,3 +134,8 @@ p.subscribe(renderProgram)
 const renderStatus = ui.statusUi($status)
 renderStatus(m.current())
 m.subscribe(renderStatus)
+
+// UI: Connections
+const renderConnections = ui.connectionsUi($connections)
+renderConnections(mgr.current())
+mgr.subscribe(renderConnections)

@@ -34,7 +34,7 @@ export const createRemote = async (config, localId, remoteId, caller=false) => {
   const signals = signalsForPair(socket, localId, remoteId)
   const connection = await connectToPeer(signals, caller)
   const channel = await openChannel(connection, channelLabel, channelId)
-  return { id: remoteId, channel }
+  return { id: remoteId, connection, channel }
 }
 
 /**
@@ -165,13 +165,12 @@ export async function openChannel(connection, label, id) {
  */
 class DataChannelMessages {
   #cb
-  #channel
 
   /**
    * @type {RTCDataChannel} channel
    */
   constructor(channel) {
-    this.#channel = channel
+    this.channel = channel
     channel.addEventListener('message', (...args) => this.#onmessage(...args))
   }
 
@@ -183,7 +182,7 @@ class DataChannelMessages {
    */
   async send(msg) {
     const data = JSON.stringify(msg)
-    this.#channel.send(data)
+    this.channel.send(data)
   }
 
   /**

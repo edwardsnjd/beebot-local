@@ -35,7 +35,18 @@ const remoteManager = (fn) => {
   const { subscribe, notify } = eventHub()
 
   const current = () => remote
-  const set = (r) => notify(remote = r)
+  const set = (r) => {
+    remote =r
+
+    const { channel: ch, connection: con } = remote
+
+    con.addEventListener('connectionstatechange', () => notify(current()))
+    con.addEventListener('signallingstatechange', () => notify(current()))
+    ch.channel.addEventListener('close', () => notify(current()))
+    ch.channel.addEventListener('error', () => notify(current()))
+
+    notify(current())
+  }
   const connect = () => fn().then(set)
 
   const send = (msg) => {
