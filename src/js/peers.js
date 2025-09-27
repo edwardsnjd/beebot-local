@@ -34,6 +34,17 @@ export const createRemote = async (config, localId, remoteId, caller=false) => {
   const signals = signalsForPair(socket, localId, remoteId)
   const connection = await connectToPeer(signals, caller)
   const channel = await openChannel(connection, channelLabel, channelId)
+
+  // Debug connection events
+  const log = (...args) => console.log(localId, remoteId, ...args)
+  connection.addEventListener('connectionstatechange', () => log('connectionstatechange', connection.connectionState))
+  connection.addEventListener('signalingstatechange', () => log('signalingstatechange', connection.signalingState))
+  connection.addEventListener('datachannel', (e) => log('datachannel', e))
+  // Debug channel events
+  channel.channel.addEventListener('close', () => log('channel closed', channel.id))
+  channel.channel.addEventListener('error', () => log('channel error', channel.id))
+  channel.channel.addEventListener('closing', () => log('channel closing', channel.id))
+
   return { id: remoteId, connection, channel }
 }
 
