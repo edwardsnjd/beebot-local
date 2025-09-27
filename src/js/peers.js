@@ -30,10 +30,17 @@ export const listenForRemotes = (config, onRemote) => {
  * Create a remote, optionally initiating the connection.
  */
 export const createRemote = async (config, localId, remoteId, caller=false) => {
-  const { socket, channelLabel, channelId } = config
+  const { socket, channelLabel } = config
   const signals = signalsForPair(socket, localId, remoteId)
   const connection = await connectToPeer(signals, caller)
-  const channel = await openChannel(connection, channelLabel, channelId)
+
+  const rtcChannel = caller
+    ? connection.createDataChannel(channelLabel)
+    : await new Promise((resolve, _reject) => {
+        connection.addEventListener('datachannel', (e) => resolve(e.channel))
+      })
+  await awaitOpenChannel(rtcChannel)
+  const channel = new DataChannelMessages(rtcChannel)
 
   // Debug connection events
   const log = (...args) => console.log(localId, remoteId, ...args)
@@ -148,23 +155,21 @@ export async function connectToPeer(signals, caller = false) {
   })
 }
 
-/**
- * Build and return a data channel to a peer via their connection.
- *
- * This only resolves to the open channel, otherwise this rejects.
- *
- * @type {RTCPeerConnection} connection
- * @returns {Promise<DataChannelMessages>}
- */
-export async function openChannel(connection, label, id) {
-  const channel = connection.createDataChannel(label, { negotiated: true, id})
-  return new Promise((resolve, _reject) => {
-    channel.addEventListener('open', () => {
-      console.log('Data channel open')
-      resolve(channel)
-    })
-  }).then(channel => new DataChannelMessages(channel))
-}
+const awaitOpenChannel = (channel) =>
+  new Promise((resolve, reject) => {
+    // Check if already terminal...
+    switch (channel.readyState) {
+      case 'open': return resolve(channel)
+      case 'closed': return reject(channel)
+    }
+    // ...otherwise wait until it changes
+    channel.addEventListener('error', (e) => console.error('Channel error', e))
+    channel.addEventListener('close', (e) => console.log('Channel closed', e))
+    channel.addEventListener('open', (e) => console.log('Channel open', e))
+    channel.addEventListener('error', () => reject(channel))
+    channel.addEventListener('close', () => reject(channel))
+    channel.addEventListener('open', () => resolve(channel))
+  })
 
 /**
  * An abstract connection to a rendezvous room on a signalling server.

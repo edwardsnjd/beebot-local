@@ -13,7 +13,6 @@ const gameId = hostId
 
 // Well known constants
 const channelLabel = 'chat'
-const channelId = 100
 
 // Game
 
@@ -85,7 +84,7 @@ const mgr = connectionsManager()
 const socket = await openSocketForGame(gameId, secret)
 
 // Listen for remotes
-const config = { socket, hostId, channelLabel, channelId }
+const config = { socket, hostId, channelLabel }
 listenForRemotes(config, (remote) => {
   const { id, channel } = remote
   console.log(`Remote connected: ${id}`)
