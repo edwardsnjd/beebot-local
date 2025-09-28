@@ -23,17 +23,17 @@ Design
         - Orientation: int
 - Game UI:
     - Open space, beebot on screen
-- Player controls UI:
+- Remote controls UI:
     - Simple buttons
 
 Communication
 -------------
 
 1. Load page (/index.html)
-2. By default start "Host", give link to "Player" URL (/player.html)
-3. For host: create and display game, give unique random Game ID, provide link to Player to join Game (/player.html?game=ID)
+2. By default start "Host", give link to "Remote" URL (/player.html)
+3. For host: create and display game, give unique random Game ID, provide link to Remote to join Game (/player.html?game=ID)
 3. For player: enter game ID to join (if not provided in URL)
-4. Player starts sending commands to host
+4. Remote starts sending commands to host
 5. Host continually processes commands, updating and displaying game state
 
 Tech stack
@@ -42,7 +42,7 @@ Tech stack
 - SPA
 - Vanilla JS where possible
     - Reset UI each state change?
-    - WebRTC for Host-Player connection
+    - WebRTC for Host-Remote connection
     - WebSocket signalling for WebRTC negotiation
     - Browser motion API for events
     - Single `main.js` script loaded as module in HTML
