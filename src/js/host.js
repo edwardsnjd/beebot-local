@@ -19,13 +19,38 @@ const channelLabel = 'chat'
 const b = createBot()
 const p = createProgram(b)
 
-const onCommand = (cmd) => ({
-  [Commands.Up]: () => b.forward(),
-  [Commands.Right]: () => b.right(),
-  [Commands.Down]: () => b.backward(),
-  [Commands.Left]: () => b.left(),
-  [Commands.Pause]: () => b.pause(),
-}[cmd])
+const createInterpreter = (b) => {
+  let command = null
+  let index = null
+
+  const { subscribe, notify } = eventHub()
+
+  const set = (c, i) => {
+    command = c
+    index = i
+    notify(current())
+  }
+  const current = () => ({ command, index })
+
+  const run = (p) =>
+    p.interpret(step)
+      .then(() => set(null, null))
+  const step = (cmd, idx, _all) => () => {
+    set(cmd, idx)
+    return actions[cmd]()
+  }
+
+  const actions = {
+    [Commands.Up]: () => b.forward(),
+    [Commands.Right]: () => b.right(),
+    [Commands.Down]: () => b.backward(),
+    [Commands.Left]: () => b.left(),
+    [Commands.Pause]: () => b.pause(),
+  }
+
+  return { current, run, subscribe }
+}
+const i = createInterpreter(b)
 
 const m = createMachine({
   initial: 'idle',
@@ -38,7 +63,7 @@ const m = createMachine({
     },
   },
   running: {
-    enter: (m) => p.interpret(onCommand)
+    enter: (m) => i.run(p)
       .then(() => m.send({ type: 'done' })),
     on: {
       done: { target: 'idle', }
@@ -126,8 +151,10 @@ b.subscribe(renderBot)
 
 // UI: Program
 const renderProgram = ui.programUi($program)
-renderProgram(p.current())
-p.subscribe(renderProgram)
+const updateProgram = () =>
+  renderProgram(p.current(), i.current())
+p.subscribe(updateProgram)
+i.subscribe(updateProgram)
 
 // UI: Status
 const renderStatus = ui.statusUi($status)

@@ -89,7 +89,28 @@ main > * {
 }
 
 #program {
-  font-size: 3vmin;
+  position: relative;
+}
+
+#program .listing {
+  font-size: 3.5vmin;
+}
+
+#program .highlight {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border: 1px dotted red;
+  border-radius: 2px;
+  background-color: #ddf;
+  z-index: -1;
+}
+
+#program .highlight.active {
+  display: block;
 }
 
 #status {

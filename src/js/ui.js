@@ -42,19 +42,44 @@ export const botUi = ($el) => ({ position, angle }) => {
   return sleep(animationDuration + 20)
 }
 
-export const programUi = ($el) => (program) => {
-  const text = program.length > 0
-    ? program.map(actionIcon).join(', ')
-    : ''
-  $el.innerText = `Program: ${text}`
+export const programUi = ($el) => {
+  const $listing = $el.querySelector('.listing')
+  const $highlight = $el.querySelector('.highlight')
+
+  const actionItem = (cmd, idx) =>
+    `<span data-cmd-idx="${idx}">${actionIcon(cmd)}</span>`
+
+  const actionIcon = (cmd) => ({
+    [Commands.Up]: '⬆️',
+    [Commands.Right]: '➡️',
+    [Commands.Down]: '⬇️',
+    [Commands.Left]: '⬅️',
+    [Commands.Pause]: '⏸️',
+  })[cmd]
+
+  return (program, { index }) => {
+    const text = program.map(actionItem).join('+')
+    $listing.innerHTML = `Program: ${text}`
+
+    const showHighlight = index !== null
+
+    $highlight.classList[showHighlight ? 'add' : 'remove']('active')
+
+    if (showHighlight) {
+      const activeItem = $el.querySelector(`[data-cmd-idx="${index}"`)
+      const { left, top, width, height } = activeItem.getBoundingClientRect()
+      const { left: parentLeft, top: parentTop } = $el.getBoundingClientRect()
+      const padding = 2;
+      $highlight.style.width = `${width + 2*padding}px`
+      $highlight.style.height = `${height + 2*padding}px`
+      $highlight.style.transitionDuration = `${200}ms`
+      $highlight.style.transform = `translate(
+        ${left - parentLeft - 2 - padding}px,
+        ${top - parentTop - 1 - padding}px
+      )`
+    }
+  }
 }
-const actionIcon = (cmd) => ({
-  [Commands.Up]: '⬆️',
-  [Commands.Right]: '➡️',
-  [Commands.Down]: '⬇️',
-  [Commands.Left]: '⬅️',
-  [Commands.Pause]: '⏸️',
-})[cmd]
 
 export const statusUi = ($el) => (state) => {
   if (state === 'running') $el.classList.add('running')
