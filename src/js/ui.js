@@ -42,19 +42,34 @@ export const botUi = ($el) => ({ position, angle }) => {
   return sleep(animationDuration + 20)
 }
 
-export const programUi = ($el) => (program) => {
-  const text = program.length > 0
-    ? program.map(actionIcon).join(', ')
-    : ''
-  $el.innerText = `Program: ${text}`
+export const programUi = ($el) => {
+  const actionItem = (cmd, idx) =>
+    `<span data-cmd-idx="${idx}">${actionIcon(cmd)}</span>`
+  const actionIcon = (cmd) => ({
+    [Commands.Up]: '⬆️',
+    [Commands.Right]: '➡️',
+    [Commands.Down]: '⬇️',
+    [Commands.Left]: '⬅️',
+    [Commands.Pause]: '⏸️',
+  })[cmd]
+
+  return (program, interpreter) => {
+    const text = program.map(actionItem).join(', ')
+    $el.innerHTML = `Program: ${text}`
+
+    if (interpreter.index !== null) {
+      const activeItem = $el.querySelector(`[data-cmd-idx="${interpreter.index}"`)
+      const itemRect = activeItem.getBoundingClientRect()
+      const parentRect = activeItem.parentNode.getBoundingClientRect()
+      const left = itemRect.left - parentRect.left
+      const top = itemRect.top - parentRect.top
+      const width = itemRect.width
+      const height = itemRect.height
+      const highlight = `<div class="highlight" style="position: absolute; left:${left};top:${top};width:${width};height:${height}">HERE</div>`
+      $el.innerHTML += highlight
+    }
+  }
 }
-const actionIcon = (cmd) => ({
-  [Commands.Up]: '⬆️',
-  [Commands.Right]: '➡️',
-  [Commands.Down]: '⬇️',
-  [Commands.Left]: '⬅️',
-  [Commands.Pause]: '⏸️',
-})[cmd]
 
 export const statusUi = ($el) => (state) => {
   if (state === 'running') $el.classList.add('running')
