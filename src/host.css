@@ -5,6 +5,8 @@
 main {
   display: grid;
   gap: 1rem;
+  width: 98vw;
+  height: 98vh;
 }
 
 /* Landscape layout */

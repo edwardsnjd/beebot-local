@@ -31,15 +31,34 @@ export const controlsUi = ($el, sendEvent) => {
   }
 }
 
-export const botUi = ($el) => ({ position, angle }) => {
-  const animationDuration = 1000
-  $el.style.transitionDuration = `${animationDuration}ms`
-  $el.style.transform = `
-    translate(${position.x}px, ${position.y}px)
-    rotate(${angle}deg)
-  `
-  // HACK: Add 20ms to animation to ensure it's finished
-  return sleep(animationDuration + 20)
+export const botUi = ($el) => {
+  const $svg = $el.parentElement
+
+  const getViewBox = () => $svg.getAttribute('viewBox')
+  const [_x, _y, origW, origH] = getViewBox().split(' ')
+  const viewBoxPadding = 30
+  const viewBoxFor = (position) => {
+    const width = Math.max(origW, Math.abs(position.x) * 2 + viewBoxPadding)
+    const height = Math.max(origH, Math.abs(position.y) * 2 + viewBoxPadding)
+    return `${-width/2} ${-height/2} ${width} ${height}`
+  }
+
+  return ({ position, angle }) => {
+    const viewBox = viewBoxFor(position)
+    if (getViewBox() != viewBox) {
+      $svg.querySelector('animate').setAttribute('to', viewBox)
+      $svg.querySelector('animate').beginElement()
+    }
+
+    const animationDuration = 1000
+    $el.style.transitionDuration = `${animationDuration}ms`
+    $el.style.transform = `
+      translate(${position.x}px, ${position.y}px)
+      rotate(${angle}deg)
+    `
+    // HACK: Add 20ms to animation to ensure it's finished
+    return sleep(animationDuration + 20)
+  }
 }
 
 export const programUi = ($el) => {
