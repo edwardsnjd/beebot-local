@@ -81,7 +81,7 @@ export const programUi = ($el) => {
   })[cmd]
 
   return (program, { index }) => {
-    const text = program.map(actionItem).join('+')
+    const text = program.map(actionItem).join('+ ')
     $listing.innerHTML = `Program: ${text}`
 
     const showHighlight = index !== null
