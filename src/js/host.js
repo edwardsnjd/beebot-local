@@ -132,7 +132,6 @@ const $qr = document.getElementById('qr-container')
 const $controls = document.getElementById('controls')
 const $bot = document.querySelector('.beebot')
 const $program = document.getElementById('program')
-const $status = document.getElementById('status')
 const $connections = document.getElementById('connections')
 
 // UI: Remotes
@@ -155,11 +154,6 @@ const updateProgram = () =>
   renderProgram(p.current(), i.current())
 p.subscribe(updateProgram)
 i.subscribe(updateProgram)
-
-// UI: Status
-const renderStatus = ui.statusUi($status)
-renderStatus(m.current())
-m.subscribe(renderStatus)
 
 // UI: Connections
 const renderConnections = ui.connectionsUi($connections)

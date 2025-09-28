@@ -100,10 +100,5 @@ export const programUi = ($el) => {
   }
 }
 
-export const statusUi = ($el) => (state) => {
-  if (state === 'running') $el.classList.add('running')
-  else $el.classList.remove('running')
-}
-
 export const connectionsUi = ($el) => (remotes) =>
   $el.innerHTML = JSON.stringify(remotes)
