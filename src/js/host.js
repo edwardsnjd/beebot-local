@@ -130,6 +130,7 @@ listenForRemotes(config, (remote) => {
 const $remoteLink = document.getElementById('remoteLink')
 const $qr = document.getElementById('qr-container')
 const $controls = document.getElementById('controls')
+const $board = document.getElementById('board')
 const $bot = document.querySelector('.beebot')
 const $program = document.getElementById('program')
 const $connections = document.getElementById('connections')
@@ -143,6 +144,10 @@ ui.remoteQrUi($qr)(remoteUrl)
 const renderControls = ui.controlsUi($controls, (cmd) => m.send(cmd))
 renderControls(m.current())
 m.subscribe(renderControls)
+
+// UI: Board
+const renderBoard = ui.boardUi($board)
+b.subscribe(renderBoard)
 
 // UI: Bot
 const renderBot = ui.botUi($bot)
