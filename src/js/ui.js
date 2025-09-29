@@ -47,22 +47,25 @@ export const boardUi = ($el) => {
   return ({ position }) => {
     const viewBox = viewBoxFor(position)
     if (viewBox !== current) {
+      $animation.setAttribute('from', current)
       $animation.setAttribute('to', viewBox)
       $animation.beginElement()
       current = viewBox
+      // HACK: Add a few ms to animation to ensure it's finished
+      return sleep(500)
     }
   }
 }
 
 export const botUi = ($el) => ({ position, angle }) => {
-  const animationDuration = 1000
+  const animationDuration = 1500
   $el.style.transitionDuration = `${animationDuration}ms`
   $el.style.transform = `
     translate(${position.x}px, ${position.y}px)
     rotate(${angle}deg)
   `
-  // HACK: Add 20ms to animation to ensure it's finished
-  return sleep(animationDuration + 20)
+  // HACK: Add a few ms to animation to ensure it's finished
+  return sleep(animationDuration + 250)
 }
 
 export const programUi = ($el) => {
