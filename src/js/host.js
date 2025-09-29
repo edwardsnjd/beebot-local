@@ -92,14 +92,18 @@ const connectionsManager = () => {
       },
     }))
 
+  const publish = () => notify(current())
+
   const add = (remote) => {
     remotes.push(remote)
-    remote.connection.addEventListener('connectionstatechange', () => notify(current()))
-    remote.connection.addEventListener('signalingstatechange', () => notify(current()))
-    remote.connection.addEventListener('datachannel', () => notify(current()))
-    remote.channel.channel.addEventListener('close', () => notify(current()))
-    remote.channel.channel.addEventListener('error', () => notify(current()))
-    notify(current())
+
+    remote.connection.addEventListener('connectionstatechange', publish)
+    remote.connection.addEventListener('signalingstatechange', publish)
+    remote.connection.addEventListener('datachannel', publish)
+    remote.channel.channel.addEventListener('close', publish)
+    remote.channel.channel.addEventListener('error', publish)
+
+    publish()
   }
 
   return { current, add, subscribe }
@@ -112,8 +116,7 @@ const socket = await openSocketForGame(gameId, secret)
 // Listen for remotes
 const config = { socket, hostId, channelLabel }
 listenForRemotes(config, (remote) => {
-  const { id, channel } = remote
-  console.log(`Remote connected: ${id}`)
+  const { channel } = remote
   mgr.add(remote)
 
   // Forward messages from remote to state machine
@@ -121,10 +124,7 @@ listenForRemotes(config, (remote) => {
 
   // Forward all state changes to remote
   channel.send({ state: m.current() })
-  m.subscribe((state) => {
-    console.log('updating remote state', id, state)
-    channel.send({ state })
-  })
+  m.subscribe((state) => channel.send({ state }))
 })
 
 // UI: DOM
