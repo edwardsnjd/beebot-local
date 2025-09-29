@@ -16,7 +16,7 @@ Promise.seq = (ps) =>
 /**
  * Create a generic event hub with a single topic.
  */
-export const eventHub = () => {
+export const eventHub = (name = '') => {
   let listeners = []
 
   const subscribe = (cb) => {
@@ -35,7 +35,7 @@ export const eventHub = () => {
 export const createMachine = (config) => {
   let state = null
 
-  const { subscribe, notify } = eventHub()
+  const { subscribe, notify } = eventHub('machine')
 
   const current = () => state
 
@@ -69,7 +69,7 @@ export const createMachine = (config) => {
 export const createProgram = () => {
   let program = []
 
-  const { subscribe, notify } = eventHub()
+  const { subscribe, notify } = eventHub('program')
 
   const current = () => program
   const add = (cmd) => {
@@ -93,7 +93,7 @@ export const createBot = () => {
   let position = { x: 0, y: 0 }
   let orientation = { d: Directions.Up, angle: 0 }
 
-  const { subscribe, notify } = eventHub()
+  const { subscribe, notify } = eventHub('bot')
 
   const move = ({ x, y }) => {
     position.x += x

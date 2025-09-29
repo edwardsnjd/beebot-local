@@ -32,7 +32,7 @@ const remoteManager = (fn) => {
   let remote = null
   let channel = null
 
-  const { subscribe, notify } = eventHub()
+  const { subscribe, notify } = eventHub('remotes')
 
   const current = () => remote
   const set = (r) => {
@@ -53,7 +53,7 @@ const remoteManager = (fn) => {
     if (channel) channel.send(msg)
     else console.warn('No channel to send message', msg)
   }
-  const messageEvents = eventHub()
+  const messageEvents = eventHub('messageEvents')
   subscribe((r) => {
     channel = r?.channel
     if (channel) channel.onMessage(messageEvents.notify)

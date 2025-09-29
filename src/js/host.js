@@ -23,7 +23,7 @@ const createInterpreter = (b) => {
   let command = null
   let index = null
 
-  const { subscribe, notify } = eventHub()
+  const { subscribe, notify } = eventHub('interpreter')
 
   const set = (c, i) => {
     command = c
@@ -35,6 +35,7 @@ const createInterpreter = (b) => {
   const run = (p) =>
     p.interpret(step)
       .then(() => set(null, null))
+
   const step = (cmd, idx, _all) => () => {
     set(cmd, idx)
     return actions[cmd]()
@@ -75,7 +76,7 @@ m.start()
 const connectionsManager = () => {
   let remotes = []
 
-  const { subscribe, notify } = eventHub()
+  const { subscribe, notify } = eventHub('connections')
 
   const current = () =>
     remotes.map(r => ({
