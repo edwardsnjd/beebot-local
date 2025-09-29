@@ -31,5 +31,5 @@ server.key server.crt:
 
 .PHONY: serve
 serve: server.crt server.key
-	@npx http-server -S -C server.crt -K server.key -c-1
+	@npx http-server -S -C server.crt -K server.key -c-1 src/
 
