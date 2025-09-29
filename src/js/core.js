@@ -24,7 +24,7 @@ export const eventHub = (name = '') => {
     return () => listeners = listeners.filter(l => l !== cb)
   }
   const notify = (state) =>
-    Promise.all(listeners.map(l => l(state)))
+    Promise.seq(listeners.map(l => () => l(state)))
 
   return { subscribe, notify }
 }
