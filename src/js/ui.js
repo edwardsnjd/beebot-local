@@ -59,9 +59,10 @@ export const boardUi = ($el) => {
 
 export const botUi = ($el) => ({ position, angle }) => {
   const animationDuration = 1500
+  const step = 20
   $el.style.transitionDuration = `${animationDuration}ms`
   $el.style.transform = `
-    translate(${position.x}px, ${position.y}px)
+    translate(${position.x * step}px, ${position.y * step}px)
     rotate(${angle}deg)
   `
   // HACK: Add a few ms to animation to ensure it's finished

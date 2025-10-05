@@ -112,7 +112,6 @@ export const createBot = () => {
     return notify({ position, angle: orientation.angle })
   }
 
-  const step = 20
   const orientationVectors = {
     [Directions.Up]: { x: 0, y: -1 },
     [Directions.Right]: { x: 1, y: 0 },
@@ -121,11 +120,11 @@ export const createBot = () => {
   }
   const forward = () => {
     const change = orientationVectors[orientation.d]
-    return move({ x: step * change.x, y: step * change.y })
+    return move({ x: change.x, y: change.y })
   }
   const backward = () => {
     const change = orientationVectors[orientation.d]
-    return move({ x: -step * change.x, y: -step * change.y })
+    return move({ x: -change.x, y: -change.y })
   }
   const right = () => rotate(1)
   const left = () => rotate(-1)
