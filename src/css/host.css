@@ -70,7 +70,7 @@ main {
   min-height: 60vh;
 }
 
-.beebot {
+.cell {
   transform-origin: center;
   transform-box: fill-box;
   transition-timing-function: ease-in-out;

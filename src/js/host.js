@@ -3,6 +3,7 @@ import { listenForRemotes } from './peers.js'
 import { createMachine, createBot, createProgram, Commands } from './core.js'
 import * as ui from './ui.js'
 import { eventHub } from './core.js'
+import { parse } from './map.js'
 
 // Per connection constants
 const secret = new URL(window.location).searchParams.get('secret')
@@ -18,6 +19,15 @@ const channelLabel = 'chat'
 
 const b = createBot()
 const p = createProgram(b)
+
+const map = parse([
+  '+ +',
+  ' h ',
+  '+ +',
+  '   ',
+  '0 +',
+  '   ',
+])
 
 const createInterpreter = (b) => {
   let command = null
@@ -146,7 +156,8 @@ renderControls(m.current())
 m.subscribe(renderControls)
 
 // UI: Board
-const renderBoard = ui.boardUi($board)
+const renderBoard = ui.boardUi($board, map)
+renderBoard(b.current())
 b.subscribe(renderBoard)
 
 // UI: Program

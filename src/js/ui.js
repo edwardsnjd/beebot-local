@@ -31,8 +31,7 @@ export const controlsUi = ($el, sendEvent) => {
   }
 }
 
-export const boardUi = ($el) => {
-  const $bot = $el.querySelector('.beebot')
+export const boardUi = ($el, { cells, walls }) => {
   const $animation = $el.querySelector('animate')
 
   let current = $el.getAttribute('viewBox')
@@ -47,6 +46,48 @@ export const boardUi = ($el) => {
     return `${-width/2} ${-height/2} ${width} ${height}`
   }
 
+  const toCoord = ({ x, y }) => ({
+    x: x * step - (step/2),
+    y: y * step - (step/2),
+  })
+
+  const createCell = (id) => {
+    const $template = document.getElementById(id)
+
+    const $instance = $template.content.cloneNode(true).firstElementChild
+    $instance.setAttribute('width', step)
+    $instance.setAttribute('height', step)
+
+    const $cell = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    $cell.classList.add('cell')
+    $cell.appendChild($instance)
+
+    return $cell
+  }
+
+  const setCellPosition = ($cell, position, angle=0) => {
+    const coord = toCoord(position)
+    $cell.style.transform = `
+      translate(${coord.x}px, ${coord.y}px)
+      rotate(${angle}deg)
+    `
+  }
+
+  const templateName = {
+    'h': 'hive-template',
+  }
+  cells.forEach(({ content, position }) => {
+    const id = templateName[content]
+    if (!id) return
+
+    const $cell = createCell(id)
+    $el.appendChild($cell)
+    setCellPosition($cell, position, 0)
+  })
+
+  const $bot = createCell('bee-template')
+  $el.appendChild($bot)
+
   return async ({ position, angle }) => {
     const viewBox = viewBoxFor(position)
     if (viewBox !== current) {
@@ -60,10 +101,8 @@ export const boardUi = ($el) => {
 
     const animationDuration = 1500
     $bot.style.transitionDuration = `${animationDuration}ms`
-    $bot.style.transform = `
-      translate(${position.x * step}px, ${position.y * step}px)
-      rotate(${angle}deg)
-    `
+    setCellPosition($bot, position, angle)
+
     // HACK: Add a few ms to animation to ensure it's finished
     await sleep(animationDuration + 250)
   }

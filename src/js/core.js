@@ -101,15 +101,17 @@ export const createBot = () => {
 
   const { subscribe, notify } = eventHub('bot')
 
+  const current = () => ({ position, angle: orientation.angle })
+
   const move = ({ x, y }) => {
     position.x += x
     position.y += y
-    return notify({ position, angle: orientation.angle })
+    return notify(current())
   }
   const rotate = (change) => {
     orientation.d = (orientation.d + 4 + change) % 4
     orientation.angle += change * 90
-    return notify({ position, angle: orientation.angle })
+    return notify(current())
   }
 
   const orientationVectors = {
@@ -133,5 +135,5 @@ export const createBot = () => {
     .then(() => move({ x: -position.x, y: -position.y }))
     .then(() => rotate(-orientation.angle / 90))
 
-  return { forward, right, backward, left, pause, goHome, subscribe }
+  return { current, forward, right, backward, left, pause, goHome, subscribe }
 }
