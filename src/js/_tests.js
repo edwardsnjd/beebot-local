@@ -36,7 +36,7 @@ export const it = (label, fn) =>
         return true
       } catch (e) {
         console.log('[test]', nestedLabel, "❌")
-        console.log(' ', e)
+        console.log(e)
         return false
       }
     }
