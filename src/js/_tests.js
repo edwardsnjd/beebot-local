@@ -5,6 +5,11 @@ export const assert = (val, msg) => {
   if (!val) throw new Error(msg || `${val} is not truthy`)
 }
 
+/** Throw if the given value is not truthy. */
+export const assertEqual = (val, expected, msg) => {
+  if (val !== expected) throw new Error(msg || `${val} did not equal expected value ${expected}`)
+}
+
 /** Throw unless the given function throws. */
 export const assertThrows = (fn, msg) => {
   let threw = false
