@@ -1,40 +1,7 @@
 #! /usr/bin/env node
 
+import { describe, it, assert, assertThrows } from './_tests.js'
 import { createMachine } from './core.js'
-
-// TEST HARNESS
-
-/** Throw if the given value is not truthy. */
-const assert = (val, msg) => {
-  if (!val) throw (msg ?? `${val} is not truthy`)
-}
-
-/** Throw unless the given function throws. */
-const assertThrows = (fn, msg) => {
-  try {
-    fn()
-    throw (msg ?? `${fn} did not throw`)
-  } catch {
-  }
-}
-
-let labels = []
-const describe = (label, fn) => {
-  labels.push(label)
-  fn()
-  labels.pop()
-}
-
-const it = (label, fn) =>
-  describe(label, () => {
-    try {
-      fn()
-      console.log('[test]', labels.join(' › '), '✅')
-    } catch (e) {
-      console.log('[test]', labels.join(' › '), "❌")
-      console.log(' ', e.message)
-    }
-  })
 
 // MACHINE TESTS
 
