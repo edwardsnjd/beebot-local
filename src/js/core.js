@@ -33,6 +33,9 @@ export const eventHub = (name = '') => {
  * Create a state machine from the given state config.
  */
 export const createMachine = (config) => {
+  if (!config) throw 'Must provide config'
+  if (!config.initial) throw 'Must provide initial state'
+
   let state = null
 
   const { subscribe, notify } = eventHub('machine')
@@ -44,6 +47,9 @@ export const createMachine = (config) => {
   }
 
   const send = (e) => {
+    if (!e) throw 'Must provide event to send'
+    if (!e.type) throw 'Must provide type to send'
+
     const onSend = config[state]?.on[e.type]
     if (!onSend) return
 

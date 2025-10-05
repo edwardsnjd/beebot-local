@@ -7,11 +7,13 @@ export const assert = (val, msg) => {
 
 /** Throw unless the given function throws. */
 export const assertThrows = (fn, msg) => {
+  let threw = false
   try {
     fn()
-    throw Error(msg || `${fn} did not throw`)
   } catch {
+    threw = true
   }
+  if (!threw) throw Error(msg || `${fn} did not throw`)
 }
 
 let tests = []
