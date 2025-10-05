@@ -32,10 +32,11 @@ export const controlsUi = ($el, sendEvent) => {
 }
 
 export const boardUi = ($el) => {
+  const $bot = $el.querySelector('.beebot')
+  const $animation = $el.querySelector('animate')
+
   let current = $el.getAttribute('viewBox')
   const [_x, _y, origW, origH] = current.split(' ')
-
-  const $animation = $el.querySelector('animate')
 
   const viewBoxFor = (position) => {
     const viewBoxPadding = 30
@@ -44,7 +45,7 @@ export const boardUi = ($el) => {
     return `${-width/2} ${-height/2} ${width} ${height}`
   }
 
-  return ({ position }) => {
+  return async ({ position, angle }) => {
     const viewBox = viewBoxFor(position)
     if (viewBox !== current) {
       $animation.setAttribute('from', current)
@@ -52,21 +53,19 @@ export const boardUi = ($el) => {
       $animation.beginElement()
       current = viewBox
       // HACK: Add a few ms to animation to ensure it's finished
-      return sleep(500)
+      await sleep(500)
     }
-  }
-}
 
-export const botUi = ($el) => ({ position, angle }) => {
-  const animationDuration = 1500
-  const step = 20
-  $el.style.transitionDuration = `${animationDuration}ms`
-  $el.style.transform = `
-    translate(${position.x * step}px, ${position.y * step}px)
-    rotate(${angle}deg)
-  `
-  // HACK: Add a few ms to animation to ensure it's finished
-  return sleep(animationDuration + 250)
+    const animationDuration = 1500
+    const step = 20
+    $bot.style.transitionDuration = `${animationDuration}ms`
+    $bot.style.transform = `
+      translate(${position.x * step}px, ${position.y * step}px)
+      rotate(${angle}deg)
+    `
+    // HACK: Add a few ms to animation to ensure it's finished
+    await sleep(animationDuration + 250)
+  }
 }
 
 export const programUi = ($el) => {

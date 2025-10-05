@@ -132,7 +132,6 @@ const $remoteLink = document.getElementById('remoteLink')
 const $qr = document.getElementById('qr-container')
 const $controls = document.getElementById('controls')
 const $board = document.getElementById('board')
-const $bot = document.querySelector('.beebot')
 const $program = document.getElementById('program')
 const $connections = document.getElementById('connections')
 
@@ -149,10 +148,6 @@ m.subscribe(renderControls)
 // UI: Board
 const renderBoard = ui.boardUi($board)
 b.subscribe(renderBoard)
-
-// UI: Bot
-const renderBot = ui.botUi($bot)
-b.subscribe(renderBot)
 
 // UI: Program
 const renderProgram = ui.programUi($program)
