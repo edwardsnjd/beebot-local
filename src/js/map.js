@@ -6,7 +6,7 @@ export const Wall = {
 export const parse = (lines) => {
   const rawCells = []
   const rawWalls = []
-  let offset = [0, 0]
+  let offset = { x: 0, y: 0 }
 
   lines.forEach((line, i) => {
     const y = i >> 1
@@ -16,17 +16,17 @@ export const parse = (lines) => {
 
     if (i % 2 === 0) {
       evens.forEach((c, x) => {
-        if (c === '0') offset = [x, y]
+        if (c === '0') offset = { x, y }
       })
       odds.forEach((c, x) => {
-        if (c === '-') rawWalls.push(buildWall(Wall.HORIZ, [x, y]))
+        if (c === '-') rawWalls.push(buildWall(Wall.HORIZ, { x, y }))
       })
     } else {
       evens.forEach((c, x) => {
-        if (c === '|') rawWalls.push(buildWall(Wall.VERT, [x, y]))
+        if (c === '|') rawWalls.push(buildWall(Wall.VERT, { x, y }))
       })
       odds.forEach((c, x) => {
-        if (c !== ' ') rawCells.push(buildCell(c, [x, y]))
+        if (c !== ' ') rawCells.push(buildCell(c, { x, y }))
       })
     }
   })
@@ -44,7 +44,10 @@ const adjustByOffset = (offset) => ({ position, ...rest }) => ({
   position: minus(position, offset),
   ...rest,
 })
-const minus = ([aX, aY], [bX, bY]) => [aX - bX, aY - bY]
+const minus = ({ x: aX, y: aY }, { x: bX, y: bY }) => ({
+  x: aX - bX,
+  y: aY - bY,
+})
 
 /**
  * Partition items by a predicate.

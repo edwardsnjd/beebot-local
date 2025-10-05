@@ -124,9 +124,9 @@ describe('Map', () => {
 
       assertEqual(walls.length, 3)
       assert(walls.every(({ type }) => type === Wall.HORIZ))
-      assert(walls.find(({ position: [x,y] }) => x === 1 && y === 0))
-      assert(walls.find(({ position: [x,y] }) => x === 0 && y === 1))
-      assert(walls.find(({ position: [x,y] }) => x === 2 && y === 1))
+      assert(walls.find(({ position: { x,y } }) => x === 1 && y === 0))
+      assert(walls.find(({ position: { x,y } }) => x === 0 && y === 1))
+      assert(walls.find(({ position: { x,y } }) => x === 2 && y === 1))
     })
 
     it('accepts vert walls', () => {
@@ -138,9 +138,9 @@ describe('Map', () => {
 
       assertEqual(walls.length, 3)
       assert(walls.every(({ type }) => type === Wall.VERT))
-      assert(walls.find(({ position: [x,y] }) => x === 0 && y === 0))
-      assert(walls.find(({ position: [x,y] }) => x === 2 && y === 0))
-      assert(walls.find(({ position: [x,y] }) => x === 3 && y === 0))
+      assert(walls.find(({ position: { x,y } }) => x === 0 && y === 0))
+      assert(walls.find(({ position: { x,y } }) => x === 2 && y === 0))
+      assert(walls.find(({ position: { x,y } }) => x === 3 && y === 0))
     })
 
     it('respects origin marker', () => {
@@ -151,9 +151,9 @@ describe('Map', () => {
       ]).walls
 
       assertEqual(walls.length, 3)
-      assert(walls.find(({ position: [x,y] }) => x === -1 && y === -1))
-      assert(walls.find(({ position: [x,y] }) => x === -2 && y === 0))
-      assert(walls.find(({ position: [x,y] }) => x === 0 && y === 0))
+      assert(walls.find(({ position: { x,y } }) => x === -1 && y === -1))
+      assert(walls.find(({ position: { x,y } }) => x === -2 && y === 0))
+      assert(walls.find(({ position: { x,y } }) => x === 0 && y === 0))
     })
   })
 })

@@ -38,10 +38,12 @@ export const boardUi = ($el) => {
   let current = $el.getAttribute('viewBox')
   const [_x, _y, origW, origH] = current.split(' ')
 
+  const step = 20
+
   const viewBoxFor = (position) => {
     const viewBoxPadding = 30
-    const width = Math.max(origW, Math.abs(position.x) * 2 + viewBoxPadding)
-    const height = Math.max(origH, Math.abs(position.y) * 2 + viewBoxPadding)
+    const width = Math.max(origW, Math.abs(position.x * step) * 2 + viewBoxPadding)
+    const height = Math.max(origH, Math.abs(position.y * step) * 2 + viewBoxPadding)
     return `${-width/2} ${-height/2} ${width} ${height}`
   }
 
@@ -57,7 +59,6 @@ export const boardUi = ($el) => {
     }
 
     const animationDuration = 1500
-    const step = 20
     $bot.style.transitionDuration = `${animationDuration}ms`
     $bot.style.transform = `
       translate(${position.x * step}px, ${position.y * step}px)
