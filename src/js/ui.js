@@ -52,15 +52,11 @@ export const boardUi = ($el, { cells, walls }) => {
   })
 
   const createCell = (id) => {
-    const $template = document.getElementById(id)
-
-    const $instance = $template.content.cloneNode(true).firstElementChild
-    $instance.setAttribute('width', step)
-    $instance.setAttribute('height', step)
-
-    const $cell = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    const $cell = document.createElementNS('http://www.w3.org/2000/svg', 'use')
+    $cell.setAttribute('href', `#${id}`)
+    $cell.setAttribute('width', step)
+    $cell.setAttribute('height', step)
     $cell.classList.add('cell')
-    $cell.appendChild($instance)
 
     return $cell
   }
