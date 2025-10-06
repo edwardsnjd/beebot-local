@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 import { describe, it, assert, assertThrows, assertEqual } from './_tests.js'
-import { createMachine, createInterpreter } from './core.js'
+import { createBot, createProgram, createMachine, createInterpreter, Commands } from './core.js'
 
 describe('Machine', () => {
   describe('creation', () => {
@@ -165,6 +165,37 @@ describe('Interpreter', () => {
       const { command, index } = m.current()
       assertEqual(command, null)
       assertEqual(index, null)
+    })
+  })
+
+  describe('running a program', () => {
+    it('raises without program', () => {
+      const b = createBot()
+      const m = createInterpreter(b)
+
+      assertThrows(() => m.run())
+    })
+
+    it('accepts empty program', () => {
+      const p = createProgram()
+      const b = createBot()
+      const m = createInterpreter(b)
+
+      m.run(p)
+    })
+
+    it('executes program on bot', async () => {
+      const p = createProgram()
+      p.add(Commands.Up)
+      p.add(Commands.Up)
+      const b = createBot()
+      const m = createInterpreter(b)
+
+      await m.run(p)
+
+      const { position } = b.current()
+      assertEqual(position.x, 0)
+      assertEqual(position.y, -2)
     })
   })
 })
