@@ -38,6 +38,7 @@ export const boardUi = ($el, { cells, walls }) => {
   const [_x, _y, origW, origH] = current.split(' ')
 
   const step = 20
+  const wallSize = 2
 
   const viewBoxFor = (position) => {
     const viewBoxPadding = 30
@@ -68,10 +69,19 @@ export const boardUi = ($el, { cells, walls }) => {
       rotate(${angle}deg)
     `
   }
+  const setWallPosition = ($wall, position, angle=0) => {
+    const coord = toCoord(position)
+    $wall.style.transform = `
+      translate(${coord.x - 2}px, ${coord.y - 2}px)
+      rotate(${angle}deg)
+    `
+  }
 
   const spriteTemplateIds = {
     'h': 'hive-template',
     's': 'start-template',
+    'horizontal': 'horizWall-template',
+    'vertical': 'vertWall-template',
   }
 
   cells.forEach(({ content, position }) => {
@@ -81,6 +91,15 @@ export const boardUi = ($el, { cells, walls }) => {
     const $cell = createSprite(id, step)
     $el.appendChild($cell)
     setSpritePosition($cell, position, 0)
+  })
+
+  walls.forEach(({ type, position }) => {
+    const id = spriteTemplateIds[type]
+    if (!id) return
+
+    const $wall = createSprite(id, step+2*wallSize)
+    $el.appendChild($wall)
+    setWallPosition($wall, position)
   })
 
   const $bot = createSprite('bee-template', step)
