@@ -1,9 +1,7 @@
 #! /usr/bin/env node
 
-import { describe, it, assert, assertThrows } from './_tests.js'
-import { createMachine } from './core.js'
-
-// MACHINE TESTS
+import { describe, it, assert, assertThrows, assertEqual } from './_tests.js'
+import { createMachine, createInterpreter } from './core.js'
 
 describe('Machine', () => {
   describe('creation', () => {
@@ -147,6 +145,26 @@ describe('Machine', () => {
       m.start()
       m.send(event)
       assert(passed)
+    })
+  })
+})
+
+describe('Interpreter', () => {
+  describe('creation', () => {
+    it('raises without bot', () => {
+      assertThrows(() => createInterpreter())
+    })
+
+    it('accepts valid config', () => {
+      const m = createInterpreter({})
+      assert(m)
+    })
+
+    it('has null state before started', () => {
+      const m = createInterpreter({})
+      const { command, index } = m.current()
+      assertEqual(command, null)
+      assertEqual(index, null)
     })
   })
 })

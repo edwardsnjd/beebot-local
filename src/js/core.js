@@ -139,6 +139,8 @@ export const createBot = () => {
 }
 
 export const createInterpreter = (b) => {
+  if (!b) throw 'Must supply the bot to move'
+
   let command = null
   let index = null
 
