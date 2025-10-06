@@ -137,3 +137,36 @@ export const createBot = () => {
 
   return { current, forward, right, backward, left, pause, goHome, subscribe }
 }
+
+export const createInterpreter = (b) => {
+  let command = null
+  let index = null
+
+  const { subscribe, notify } = eventHub('interpreter')
+
+  const set = (c, i) => {
+    command = c
+    index = i
+    notify(current())
+  }
+  const current = () => ({ command, index })
+
+  const run = (p) =>
+    p.interpret(step)
+      .then(() => set(null, null))
+
+  const step = (cmd, idx, _all) => () => {
+    set(cmd, idx)
+    return actions[cmd]()
+  }
+
+  const actions = {
+    [Commands.Up]: () => b.forward(),
+    [Commands.Right]: () => b.right(),
+    [Commands.Down]: () => b.backward(),
+    [Commands.Left]: () => b.left(),
+    [Commands.Pause]: () => b.pause(),
+  }
+
+  return { current, run, subscribe }
+}
