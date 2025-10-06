@@ -47,21 +47,21 @@ export const boardUi = ($el, { cells, walls }) => {
   }
 
   const toCoord = ({ x, y }) => ({
-    x: x * step - (step/2),
-    y: y * step - (step/2),
+    x: x * step,
+    y: y * step,
   })
 
-  const createCell = (id) => {
+  const createSprite = (id, size) => {
     const $cell = document.createElementNS('http://www.w3.org/2000/svg', 'use')
     $cell.setAttribute('href', `#${id}`)
-    $cell.setAttribute('width', step)
-    $cell.setAttribute('height', step)
+    $cell.setAttribute('width', size)
+    $cell.setAttribute('height', size)
     $cell.classList.add('cell')
 
     return $cell
   }
 
-  const setCellPosition = ($cell, position, angle=0) => {
+  const setSpritePosition = ($cell, position, angle=0) => {
     const coord = toCoord(position)
     $cell.style.transform = `
       translate(${coord.x}px, ${coord.y}px)
@@ -69,20 +69,21 @@ export const boardUi = ($el, { cells, walls }) => {
     `
   }
 
-  const templateName = {
+  const spriteTemplateIds = {
     'h': 'hive-template',
     's': 'start-template',
   }
+
   cells.forEach(({ content, position }) => {
-    const id = templateName[content]
+    const id = spriteTemplateIds[content]
     if (!id) return
 
-    const $cell = createCell(id)
+    const $cell = createSprite(id, step)
     $el.appendChild($cell)
-    setCellPosition($cell, position, 0)
+    setSpritePosition($cell, position, 0)
   })
 
-  const $bot = createCell('bee-template')
+  const $bot = createSprite('bee-template', step)
   $el.appendChild($bot)
 
   return async ({ position, angle }) => {
@@ -96,7 +97,7 @@ export const boardUi = ($el, { cells, walls }) => {
 
     const animationDuration = 1500
     $bot.style.transitionDuration = `${animationDuration}ms`
-    setCellPosition($bot, position, angle)
+    setSpritePosition($bot, position, angle)
 
     // HACK: Add a few ms to animation to ensure it's finished
     await sleep(animationDuration + 250)
