@@ -13,8 +13,6 @@
 
     <main>
       <svg xmlns="http://www.w3.org/2000/svg" id="board" viewBox="-100 -100 200 200">
-        <animate attributeName="viewBox" dur="250ms" fill="freeze" />
-
         <defs>
           <symbol id="hive-template" viewBox="0 0 64 64">
             <rect width="64" height="64" fill="none"/>
@@ -67,11 +65,13 @@
           </symbol>
 
           <pattern id="grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-            <circle cx="10" cy="10" r="1" fill="grey"/>
+            <circle cx="10" cy="10" r="0.7" fill="#888"/>
           </pattern>
-       </defs>
+        </defs>
 
-       <rect x="-1000" y="-1000" width="2000" height="2000" fill="url(#grid)"/>
+        <animate attributeName="viewBox" dur="250ms" fill="freeze" />
+
+        <rect x="-1000" y="-1000" width="2000" height="2000" fill="url(#grid)"/>
       </svg>
 
       <div id="program">
