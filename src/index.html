@@ -65,7 +65,13 @@
             <rect x="0" y="-5" width="1" height="11" stroke="grey" />
             <rect x="-5" y="0" width="11" height="1" stroke="grey" />
           </symbol>
-        </defs>
+
+          <pattern id="grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+            <circle cx="10" cy="10" r="1" fill="grey"/>
+          </pattern>
+       </defs>
+
+       <rect x="-1000" y="-1000" width="2000" height="2000" fill="url(#grid)"/>
       </svg>
 
       <div id="program">
