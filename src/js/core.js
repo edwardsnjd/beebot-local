@@ -101,18 +101,27 @@ export const createBot = () => {
 
   const { subscribe, notify } = eventHub('bot')
 
-  const current = () => ({ position, angle: orientation.angle })
+  const current = () => ({
+    position,
+    angle: orientation.angle,
+    direction: orientation.d,
+  })
+  const update = (newPosition, newOrientation) => {
+    position = newPosition
+    orientation = newOrientation
+    return notify(current())
+  }
 
-  const move = ({ x, y }) => {
-    position.x += x
-    position.y += y
-    return notify(current())
-  }
-  const rotate = (change) => {
-    orientation.d = (orientation.d + 4 + change) % 4
-    orientation.angle += change * 90
-    return notify(current())
-  }
+  const move = ({ x, y }) =>
+    update({
+      x: position.x + x,
+      y: position.y + y,
+    }, orientation)
+  const rotate = (change) =>
+    update(position, {
+      d: (orientation.d + 4 + change) % 4,
+      angle: orientation.angle + change * 90,
+    })
 
   const orientationVectors = {
     [Directions.Up]: { x: 0, y: -1 },
