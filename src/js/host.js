@@ -18,7 +18,7 @@ const channelLabel = 'chat'
 // Game
 
 const b = createBot()
-const p = createProgram(b)
+const p = createProgram()
 
 const map = parse([
   '+-+',
