@@ -92,8 +92,6 @@ export const boardUi = ($el, { cells, walls }) => {
       $animation.setAttribute('to', viewBox)
       $animation.beginElement()
       current = viewBox
-      // HACK: Add a few ms to animation to ensure it's finished
-      await sleep(500)
     }
 
     const animationDuration = 1500
