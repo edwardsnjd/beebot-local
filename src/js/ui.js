@@ -71,6 +71,7 @@ export const boardUi = ($el, { cells, walls }) => {
 
   const templateName = {
     'h': 'hive-template',
+    's': 'start-template',
   }
   cells.forEach(({ content, position }) => {
     const id = templateName[content]

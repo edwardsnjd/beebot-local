@@ -26,7 +26,7 @@ const map = parse([
   '+ +',
   '   ',
   '0 +',
-  '   ',
+  ' s ',
 ])
 
 const createInterpreter = (b) => {
