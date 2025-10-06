@@ -21,7 +21,7 @@ const b = createBot()
 const p = createProgram(b)
 
 const map = parse([
-  '+ +',
+  '+-+',
   ' h ',
   '+ +',
   '   ',
