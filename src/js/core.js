@@ -1,3 +1,5 @@
+import { Wall } from './map.js'
+
 export const Commands = {
   Up: 'U',
   Right: 'R',
@@ -140,15 +142,21 @@ export const createBot = () => {
   const right = () => rotate(1)
   const left = () => rotate(-1)
   const pause = () => sleep(1000)
+  const waggle = async () => {
+    await rotate(0.2)
+    await rotate(-0.4)
+    await rotate(0.2)
+  }
   const goHome = () => Promise.resolve()
     .then(() => move({ x: -position.x, y: -position.y }))
     .then(() => rotate(-orientation.angle / 90))
 
-  return { current, forward, right, backward, left, pause, goHome, subscribe }
+  return { current, forward, right, backward, left, pause, goHome, waggle, subscribe }
 }
 
-export const createInterpreter = (b) => {
+export const createInterpreter = (b, map) => {
   if (!b) throw 'Must supply the bot to move'
+  if (!map) throw 'Must supply the map'
 
   let command = null
   let index = null
@@ -168,7 +176,9 @@ export const createInterpreter = (b) => {
 
   const step = (cmd, idx, _all) => () => {
     set(cmd, idx)
-    return actions[cmd]()
+    const ok = canMove(map.walls, b.current(), cmd)
+    const action = ok ? actions[cmd] : waggle
+    return action()
   }
 
   const actions = {
@@ -178,6 +188,37 @@ export const createInterpreter = (b) => {
     [Commands.Left]: () => b.left(),
     [Commands.Pause]: () => b.pause(),
   }
+  const waggle = () => b.waggle()
 
   return { current, run, subscribe }
+}
+
+const canMove = (walls, current, command) => {
+  const { position, direction } = current
+
+  const findWall = (type, x, y) =>
+    walls
+      .filter(w => w.type === type)
+      .find(w => w.position.x === x && w.position.y === y)
+
+  switch (command) {
+    case Commands.Up:
+      // Look for wall in direction
+      switch (direction) {
+        case Directions.Up: return !findWall(Wall.HORIZ, position.x, position.y)
+        case Directions.Right: return !findWall(Wall.VERT, position.x + 1, position.y)
+        case Directions.Down: return !findWall(Wall.HORIZ, position.x, position.y + 1)
+        case Directions.Left: return !findWall(Wall.VERT, position.x, position.y)
+      }
+    case Commands.Down:
+      // Look for wall in opposite direction
+      switch (direction) {
+        case Directions.Up: return !findWall(Wall.HORIZ, position.x, position.y + 1)
+        case Directions.Right: return !findWall(Wall.VERT, position.x, position.y)
+        case Directions.Down: return !findWall(Wall.HORIZ, position.x, position.y)
+        case Directions.Left: return !findWall(Wall.VERT, position.x + 1, position.y)
+      }
+    default:
+      return true
+  }
 }

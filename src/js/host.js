@@ -29,7 +29,7 @@ const map = parse([
   ' s ',
 ])
 
-const i = createInterpreter(b)
+const i = createInterpreter(b, map)
 
 const m = createMachine({
   initial: 'idle',
