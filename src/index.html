@@ -12,75 +12,77 @@
   <body>
 
     <main>
-      <svg xmlns="http://www.w3.org/2000/svg" id="board" viewBox="-100 -100 200 200">
-        <defs>
-          <symbol id="hive-template" viewBox="0 -4 64 64">
-            <rect width="64" height="64" fill="none"/>
-            <!-- beehive body -->
-            <ellipse cx="32" cy="40" rx="18" ry="12" fill="#FFD54A" stroke="#E6A800" stroke-width="1.2"/>
-            <ellipse cx="32" cy="30" rx="16" ry="11" fill="#FFD54A" stroke="#E6A800" stroke-width="1.2"/>
-            <ellipse cx="32" cy="20" rx="14" ry="10" fill="#FFD54A" stroke="#E6A800" stroke-width="1.2"/>
-            <ellipse cx="32" cy="12" rx="10" ry="7" fill="#FFD54A" stroke="#E6A800" stroke-width="1.2"/>
-            <!-- entrance -->
-            <ellipse cx="32" cy="38" rx="5" ry="7" fill="#333"/>
-          </symbol>
+      <div id="board" >
+        <svg xmlns="http://www.w3.org/2000/svg" id="map" viewBox="-100 -100 200 200">
+          <defs>
+            <symbol id="hive-template" viewBox="0 -4 64 64">
+              <rect width="64" height="64" fill="none"/>
+              <!-- beehive body -->
+              <ellipse cx="32" cy="40" rx="18" ry="12" fill="#FFD54A" stroke="#E6A800" stroke-width="1.2"/>
+              <ellipse cx="32" cy="30" rx="16" ry="11" fill="#FFD54A" stroke="#E6A800" stroke-width="1.2"/>
+              <ellipse cx="32" cy="20" rx="14" ry="10" fill="#FFD54A" stroke="#E6A800" stroke-width="1.2"/>
+              <ellipse cx="32" cy="12" rx="10" ry="7" fill="#FFD54A" stroke="#E6A800" stroke-width="1.2"/>
+              <!-- entrance -->
+              <ellipse cx="32" cy="38" rx="5" ry="7" fill="#333"/>
+            </symbol>
 
-          <symbol id="bee-template" viewBox="0 0 64 64">
-            <rect width="64" height="64" fill="none"/>
+            <symbol id="bee-template" viewBox="0 0 64 64">
+              <rect width="64" height="64" fill="none"/>
 
-            <!-- wings -->
-            <ellipse cx="24" cy="20" rx="10" ry="7" fill="#DFF7FF" opacity="0.9"/>
-            <ellipse cx="40" cy="20" rx="10" ry="7" fill="#DFF7FF" opacity="0.9"/>
+              <!-- wings -->
+              <ellipse cx="24" cy="20" rx="10" ry="7" fill="#DFF7FF" opacity="0.9"/>
+              <ellipse cx="40" cy="20" rx="10" ry="7" fill="#DFF7FF" opacity="0.9"/>
 
-            <!-- body -->
-            <ellipse cx="32" cy="38" rx="18" ry="14" fill="#FFE066" stroke="#333" stroke-width="2" />
+              <!-- body -->
+              <ellipse cx="32" cy="38" rx="18" ry="14" fill="#FFE066" stroke="#333" stroke-width="2" />
 
-            <!-- stripes -->
-            <rect x="17" y="32" width="30" height="4" rx="2" fill="#333"/>
-            <rect x="17" y="40" width="30" height="4" rx="2" fill="#333"/>
+              <!-- stripes -->
+              <rect x="17" y="32" width="30" height="4" rx="2" fill="#333"/>
+              <rect x="17" y="40" width="30" height="4" rx="2" fill="#333"/>
 
-            <!-- head -->
-            <circle cx="32" cy="26" r="10" fill="#333"/>
+              <!-- head -->
+              <circle cx="32" cy="26" r="10" fill="#333"/>
 
-            <!-- face -->
-            <circle cx="28" cy="25" r="2" fill="#FFF"/>
-            <circle cx="36" cy="25" r="2" fill="#FFF"/>
-            <path d="M28 29 Q32 32 36 29" stroke="#FFF" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+              <!-- face -->
+              <circle cx="28" cy="25" r="2" fill="#FFF"/>
+              <circle cx="36" cy="25" r="2" fill="#FFF"/>
+              <path d="M28 29 Q32 32 36 29" stroke="#FFF" stroke-width="1.5" fill="none" stroke-linecap="round"/>
 
-            <!-- antennae -->
-            <path d="M26 17 C24 13, 20 12, 18 11" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
-            <path d="M38 17 C40 13, 44 12, 46 11" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <!-- antennae -->
+              <path d="M26 17 C24 13, 20 12, 18 11" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <path d="M38 17 C40 13, 44 12, 46 11" stroke="#333" stroke-width="2" fill="none" stroke-linecap="round"/>
 
-            <!-- stinger -->
-            <polygon points="50,38 56,38 50,42" fill="#333"/>
+              <!-- stinger -->
+              <polygon points="50,38 56,38 50,42" fill="#333"/>
 
-            <!-- blush -->
-            <circle cx="24" cy="28" r="1.8" fill="#FF8BA7" opacity="0.8"/>
-            <circle cx="40" cy="28" r="1.8" fill="#FF8BA7" opacity="0.8"/>
-          </symbol>
+              <!-- blush -->
+              <circle cx="24" cy="28" r="1.8" fill="#FF8BA7" opacity="0.8"/>
+              <circle cx="40" cy="28" r="1.8" fill="#FF8BA7" opacity="0.8"/>
+            </symbol>
 
-          <symbol id="start-template" viewBox="0 0 20 20">
-            <rect x="9.5" y="5" width="1" height="10" stroke="grey" />
-            <rect x="5" y="9.5" width="10" height="1" stroke="grey" />
-          </symbol>
+            <symbol id="start-template" viewBox="0 0 20 20">
+              <rect x="9.5" y="5" width="1" height="10" stroke="grey" />
+              <rect x="5" y="9.5" width="10" height="1" stroke="grey" />
+            </symbol>
 
-          <symbol id="horizWall-template" viewBox="-2 -2 24 24">
-            <rect x="3" y="-1" width="14" height="2" stroke="grey" />
-          </symbol>
+            <symbol id="horizWall-template" viewBox="-2 -2 24 24">
+              <rect x="3" y="-1" width="14" height="2" stroke="grey" />
+            </symbol>
 
-          <symbol id="vertWall-template" viewBox="-2 -2 24 24">
-            <rect x="-1" y="3" width="2" height="14" stroke="grey" />
-          </symbol>
+            <symbol id="vertWall-template" viewBox="-2 -2 24 24">
+              <rect x="-1" y="3" width="2" height="14" stroke="grey" />
+            </symbol>
 
-          <pattern id="grid" x="10" y="10" width="20" height="20" patternUnits="userSpaceOnUse">
-            <circle cx="10" cy="10" r="0.7" fill="#888"/>
-          </pattern>
-        </defs>
+            <pattern id="grid" x="10" y="10" width="20" height="20" patternUnits="userSpaceOnUse">
+              <circle cx="10" cy="10" r="0.7" fill="#888"/>
+            </pattern>
+          </defs>
 
-        <animate attributeName="viewBox" dur="1s" fill="freeze" />
+          <animate attributeName="viewBox" dur="1s" fill="freeze" />
 
-        <rect x="-1000" y="-1000" width="2000" height="2000" fill="url(#grid)"/>
-      </svg>
+          <rect x="-1000" y="-1000" width="2000" height="2000" fill="url(#grid)"/>
+        </svg>
+      </div>
 
       <div id="program">
         <div class="listing">Program: </div>
@@ -104,9 +106,7 @@
       </div>
 
       <div id="remote">
-        <a id="remoteLink" href="remote.html" target="_blank">
-          <div id="qr-container"></div>
-        </a>
+        <a id="remoteLink" href="remote.html" target="_blank"> </a>
       </div>
     </main>
 

@@ -107,16 +107,15 @@ listenForRemotes(config, (remote) => {
 
 // UI: DOM
 const $remoteLink = document.getElementById('remoteLink')
-const $qr = document.getElementById('qr-container')
 const $controls = document.getElementById('controls')
 const $board = document.getElementById('board')
+const $map = document.getElementById('map')
 const $program = document.getElementById('program')
 const $connections = document.getElementById('connections')
 
 // UI: Remotes
 const remoteUrl = `${$remoteLink.href}?host=${hostId}&secret=${secret}`
 ui.remoteLinkUi($remoteLink)(remoteUrl)
-ui.remoteQrUi($qr)(remoteUrl)
 
 // UI: Controls
 const renderControls = ui.controlsUi($controls, (cmd) => m.send(cmd))
@@ -124,7 +123,7 @@ renderControls(m.current())
 m.subscribe(renderControls)
 
 // UI: Board
-const renderBoard = ui.boardUi($board, map)
+const renderBoard = ui.boardUi($map, map)
 renderBoard(b.current())
 b.subscribe(renderBoard)
 

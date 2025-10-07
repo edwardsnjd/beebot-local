@@ -1,10 +1,9 @@
 import { Commands, sleep } from './core.js'
 
-export const remoteLinkUi = ($el) => (url) =>
+export const remoteLinkUi = ($el) => (url) => {
   $el.href = url
-
-export const remoteQrUi = ($el) => (url) =>
   $el.innerHTML = `<qr-code contents='${url}'></qr-code>`
+}
 
 export const controlsUi = ($el, sendEvent) => {
   const up = $el.querySelector('.up')
