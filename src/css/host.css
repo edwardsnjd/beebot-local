@@ -53,7 +53,16 @@ main {
 
 #board {
   padding: 0;
+  display: grid;
+  gap: 0.1rem;
+  grid-template-rows: 2em auto;
+  grid-template-areas:
+    "level"
+    "map";
 }
+
+#level { grid-area: level; }
+#map { grid-area: map; }
 
 #map {
   background-color: lightblue;
