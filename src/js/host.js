@@ -120,7 +120,6 @@ listenForRemotes(config, (remote) => {
 // UI: DOM
 const $remoteLink = document.getElementById('remoteLink')
 const $controls = document.getElementById('controls')
-const $board = document.getElementById('board')
 const $picker = document.getElementById('picker')
 const $map = document.getElementById('map')
 const $program = document.getElementById('program')
