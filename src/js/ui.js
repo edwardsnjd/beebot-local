@@ -43,7 +43,7 @@ export const boardUi = ($el, { cells, walls }) => {
     const viewBoxPadding = 30
     const width = Math.max(origW, Math.abs(position.x * step) * 2 + viewBoxPadding)
     const height = Math.max(origH, Math.abs(position.y * step) * 2 + viewBoxPadding)
-    return `${-width/2} ${-height/2} ${width} ${height}`
+    return `${-width / 2} ${-height / 2} ${width} ${height}`
   }
 
   const toCoord = ({ x, y }) => ({
@@ -61,14 +61,14 @@ export const boardUi = ($el, { cells, walls }) => {
     return $cell
   }
 
-  const setSpritePosition = ($cell, position, angle=0) => {
+  const setSpritePosition = ($cell, position, angle = 0) => {
     const coord = toCoord(position)
     $cell.style.transform = `
       translate(${coord.x}px, ${coord.y}px)
       rotate(${angle}deg)
     `
   }
-  const setWallPosition = ($wall, position, angle=0) => {
+  const setWallPosition = ($wall, position, angle = 0) => {
     const coord = toCoord(position)
     $wall.style.transform = `
       translate(${coord.x - 2}px, ${coord.y - 2}px)
@@ -96,7 +96,7 @@ export const boardUi = ($el, { cells, walls }) => {
     const id = spriteTemplateIds[type]
     if (!id) return
 
-    const $wall = createSprite(id, step+2*wallSize)
+    const $wall = createSprite(id, step + 2 * wallSize)
     $el.appendChild($wall)
     setWallPosition($wall, position)
   })
@@ -104,7 +104,7 @@ export const boardUi = ($el, { cells, walls }) => {
   const $bot = createSprite('bee-template', step)
   $el.appendChild($bot)
 
-  return async ({ position, angle }) => {
+  return async ({ position, orientation: { angle } }) => {
     const viewBox = viewBoxFor(position)
     if (viewBox !== current) {
       $animation.setAttribute('from', current)
@@ -150,8 +150,8 @@ export const programUi = ($el) => {
       const { left, top, width, height } = activeItem.getBoundingClientRect()
       const { left: parentLeft, top: parentTop } = $el.getBoundingClientRect()
       const padding = 2;
-      $highlight.style.width = `${width + 2*padding}px`
-      $highlight.style.height = `${height + 2*padding}px`
+      $highlight.style.width = `${width + 2 * padding}px`
+      $highlight.style.height = `${height + 2 * padding}px`
       $highlight.style.transitionDuration = `${200}ms`
       $highlight.style.transform = `translate(
         ${left - parentLeft - 2 - padding}px,

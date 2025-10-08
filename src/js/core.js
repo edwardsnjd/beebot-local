@@ -99,29 +99,25 @@ export const Directions = { Up: 0, Right: 1, Down: 2, Left: 3 }
 
 export const createBot = () => {
   let position = { x: 0, y: 0 }
-  let orientation = { d: Directions.Up, angle: 0 }
+  let orientation = { direction: Directions.Up, angle: 0 }
 
   const { subscribe, notify } = eventHub('bot')
 
-  const current = () => ({
-    position,
-    angle: orientation.angle,
-    direction: orientation.d,
-  })
+  const current = () => ({ position, orientation })
   const update = (newPosition, newOrientation) => {
     position = newPosition
     orientation = newOrientation
     return notify(current())
   }
 
-  const move = ({ x, y }) =>
+  const move = (x, y) =>
     update({
       x: position.x + x,
       y: position.y + y,
     }, orientation)
   const rotate = (change) =>
     update(position, {
-      d: (orientation.d + 4 + change) % 4,
+      direction: (orientation.direction + 4 + change) % 4,
       angle: orientation.angle + change * 90,
     })
 
@@ -132,12 +128,12 @@ export const createBot = () => {
     [Directions.Left]: { x: -1, y: 0 },
   }
   const forward = () => {
-    const change = orientationVectors[orientation.d]
-    return move({ x: change.x, y: change.y })
+    const change = orientationVectors[orientation.direction]
+    return move(change.x, change.y)
   }
   const backward = () => {
-    const change = orientationVectors[orientation.d]
-    return move({ x: -change.x, y: -change.y })
+    const change = orientationVectors[orientation.direction]
+    return move(-change.x, -change.y)
   }
   const right = () => rotate(1)
   const left = () => rotate(-1)
@@ -148,7 +144,7 @@ export const createBot = () => {
     await rotate(0.2)
   }
   const goHome = () => Promise.resolve()
-    .then(() => move({ x: -position.x, y: -position.y }))
+    .then(() => move(-position.x, -position.y))
     .then(() => rotate(-orientation.angle / 90))
 
   return { current, forward, right, backward, left, pause, goHome, waggle, subscribe }
@@ -194,7 +190,7 @@ export const createInterpreter = (b, map) => {
 }
 
 const canMove = (walls, current, command) => {
-  const { position, direction } = current
+  const { position, orientation: { direction } } = current
 
   const findWall = (type, x, y) =>
     walls
