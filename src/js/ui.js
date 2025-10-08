@@ -102,6 +102,7 @@ export const boardUi = ($el, { cells, walls }) => {
   })
 
   const $bot = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  $bot.classList.add('cell')
   const $botWiggle = document.createElementNS('http://www.w3.org/2000/svg', 'g')
   const $botSprite = createSprite('bee-template', step)
   $botWiggle.appendChild($botSprite)
