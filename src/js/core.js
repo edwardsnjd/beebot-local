@@ -148,9 +148,9 @@ export const createBot = () => {
   return { current, forward, right, backward, left, pause, goHome, waggle, subscribe }
 }
 
-export const createInterpreter = (b, map) => {
+export const createInterpreter = (b, findWall) => {
   if (!b) throw 'Must supply the bot to move'
-  if (!map) throw 'Must supply the map'
+  if (!findWall) throw 'Must supply the map'
 
   let command = null
   let index = null
@@ -170,7 +170,7 @@ export const createInterpreter = (b, map) => {
 
   const step = (cmd, idx, _all) => () => {
     set(cmd, idx)
-    const ok = canMove(map.walls, b.current(), cmd)
+    const ok = canMove(findWall, b.current(), cmd)
     const action = ok ? actions[cmd] : waggle
     return action()
   }
@@ -187,13 +187,8 @@ export const createInterpreter = (b, map) => {
   return { current, run, subscribe }
 }
 
-const canMove = (walls, current, command) => {
+const canMove = (findWall, current, command) => {
   const { position, orientation: { direction } } = current
-
-  const findWall = (type, x, y) =>
-    walls
-      .filter(w => w.type === type)
-      .find(w => w.position.x === x && w.position.y === y)
 
   switch (command) {
     case Commands.Up:

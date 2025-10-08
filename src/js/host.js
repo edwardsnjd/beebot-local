@@ -35,7 +35,13 @@ const createLevel = (levels) => {
 const l = createLevel(levels)
 l.set(levels[0].code)
 
-const i = createInterpreter(b, l.current().map)
+const findWall = (type, x, y) =>
+  l.current()
+    .map.walls
+    .filter(w => w.type === type)
+    .find(w => w.position.x === x && w.position.y === y)
+
+const i = createInterpreter(b, findWall)
 
 const m = createMachine({
   initial: 'idle',
