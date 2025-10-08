@@ -1,9 +1,9 @@
 import { Wall } from './map.js'
 
 export const Commands = {
-  Up: 'U',
+  Forwards: 'F',
   Right: 'R',
-  Down: 'D',
+  Backwards: 'B',
   Left: 'L',
   Pause: 'P',
 }
@@ -176,9 +176,9 @@ export const createInterpreter = (b, findWall) => {
   }
 
   const actions = {
-    [Commands.Up]: () => b.forward(),
+    [Commands.Forwards]: () => b.forward(),
     [Commands.Right]: () => b.right(),
-    [Commands.Down]: () => b.backward(),
+    [Commands.Backwards]: () => b.backward(),
     [Commands.Left]: () => b.left(),
     [Commands.Pause]: () => b.pause(),
   }
@@ -191,7 +191,7 @@ const canMove = (findWall, current, command) => {
   const { position, orientation: { direction } } = current
 
   switch (command) {
-    case Commands.Up:
+    case Commands.Forwards:
       // Look for wall in direction
       switch (direction) {
         case Directions.Up: return !findWall(Wall.HORIZ, position.x, position.y)
@@ -199,7 +199,7 @@ const canMove = (findWall, current, command) => {
         case Directions.Down: return !findWall(Wall.HORIZ, position.x, position.y + 1)
         case Directions.Left: return !findWall(Wall.VERT, position.x, position.y)
       }
-    case Commands.Down:
+    case Commands.Backwards:
       // Look for wall in opposite direction
       switch (direction) {
         case Directions.Up: return !findWall(Wall.HORIZ, position.x, position.y + 1)

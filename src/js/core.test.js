@@ -197,8 +197,8 @@ describe('Interpreter', () => {
       const m = createInterpreter(b, map)
 
       const p = createProgram()
-      p.add(Commands.Up)
-      p.add(Commands.Up)
+      p.add(Commands.Forwards)
+      p.add(Commands.Forwards)
       await m.run(p)
 
       const { position } = b.current()
@@ -218,8 +218,8 @@ describe('Interpreter', () => {
       const m = createInterpreter(b, map)
 
       const p = createProgram()
-      p.add(Commands.Up)
-      p.add(Commands.Up)
+      p.add(Commands.Forwards)
+      p.add(Commands.Forwards)
       await m.run(p)
 
       const { position } = b.current()
@@ -238,7 +238,7 @@ describe('Interpreter', () => {
 
       const p = createProgram()
       p.add(Commands.Left)
-      p.add(Commands.Up)
+      p.add(Commands.Forwards)
       await m.run(p)
 
       const { position } = b.current()
@@ -259,16 +259,16 @@ describe('Interpreter', () => {
 
       const p = createProgram()
       p.add(Commands.Left)
-      p.add(Commands.Up)
+      p.add(Commands.Forwards)
       p.add(Commands.Right)
-      p.add(Commands.Up)
+      p.add(Commands.Forwards)
       p.add(Commands.Right)
-      p.add(Commands.Up)
-      p.add(Commands.Up)
+      p.add(Commands.Forwards)
+      p.add(Commands.Forwards)
       p.add(Commands.Right)
-      p.add(Commands.Up)
+      p.add(Commands.Forwards)
       p.add(Commands.Right)
-      p.add(Commands.Up)
+      p.add(Commands.Forwards)
       p.add(Commands.Right)
       await m.run(p)
 

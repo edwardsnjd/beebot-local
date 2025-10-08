@@ -28,9 +28,9 @@ export const controlsUi = ($el, sendEvent) => {
   const pause = $el.querySelector('.pause')
   const home = $el.querySelector('.home')
 
-  up.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Up }))
+  up.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Forwards }))
   right.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Right }))
-  down.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Down }))
+  down.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Backwards }))
   left.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Left }))
   pause.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Pause }))
   go.addEventListener('click', () => sendEvent({ type: 'go' }))
@@ -186,9 +186,9 @@ export const programUi = ($el) => {
     `<span data-cmd-idx="${idx}">${actionIcon(cmd)}</span>`
 
   const actionIcon = (cmd) => ({
-    [Commands.Up]: '⬆️',
+    [Commands.Forwards]: '⬆️',
     [Commands.Right]: '➡️',
-    [Commands.Down]: '⬇️',
+    [Commands.Backwards]: '⬇️',
     [Commands.Left]: '⬅️',
     [Commands.Pause]: '⏸️',
   })[cmd]
