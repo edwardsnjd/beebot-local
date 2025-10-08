@@ -141,9 +141,13 @@ m.subscribe(renderControls)
 // UI: Board
 const renderMap = ui.boardUi($map)
 let renderBoard = renderMap(l.current().map)
-l.subscribe((l) => renderBoard = renderMap(l.map))
 renderBoard(b.current())
-b.subscribe(renderBoard)
+b.subscribe((...state) => renderBoard(...state))
+l.subscribe(async (l) => {
+  p.reset()
+  await b.goHome()
+  renderBoard = renderMap(l.map)
+})
 
 // UI: Program
 const renderProgram = ui.programUi($program)
