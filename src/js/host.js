@@ -22,11 +22,12 @@ const p = createProgram()
 
 const map = parse([
   '+-+',
-  ' h ',
+  '|h|',
   '+ +',
-  '   ',
+  '| |',
   '0 +',
-  ' s ',
+  '|s|',
+  '+-+',
 ])
 
 const i = createInterpreter(b, map)
