@@ -43,7 +43,10 @@ export const controlsUi = ($el, sendEvent) => {
   }
 }
 
-export const boardUi = ($el, { cells, walls }) => {
+/**
+ * @return (DOM -> Level -> Event)
+ */
+export const boardUi = ($el) => {
   const $animation = $el.querySelector('animate')
 
   let current = $el.getAttribute('viewBox')
@@ -96,65 +99,81 @@ export const boardUi = ($el, { cells, walls }) => {
     'vertical': 'vertWall-template',
   }
 
-  cells.forEach(({ content, position }) => {
-    const id = spriteTemplateIds[content]
-    if (!id) return
+  let $mapElements = []
 
-    const $cell = createSprite(id, step)
-    $el.appendChild($cell)
-    setSpritePosition($cell, position, 0)
-  })
+  const resetMap = () => {
+    $mapElements.forEach($e => $e.remove())
+    $mapElements = []
+  }
 
-  walls.forEach(({ type, position }) => {
-    const id = spriteTemplateIds[type]
-    if (!id) return
+  return ({ cells, walls }) => {
+    resetMap()
 
-    const $wall = createSprite(id, step + 2 * wallSize)
-    $el.appendChild($wall)
-    setWallPosition($wall, position)
-  })
+    const $cells = cells.map(({ content, position }) => {
+      const id = spriteTemplateIds[content]
+      if (!id) return null
 
-  const $bot = document.createElementNS('http://www.w3.org/2000/svg', 'g')
-  $bot.classList.add('cell')
-  const $botWiggle = document.createElementNS('http://www.w3.org/2000/svg', 'g')
-  const $botSprite = createSprite('bee-template', step)
-  $botWiggle.appendChild($botSprite)
-  $bot.appendChild($botWiggle)
-  $el.appendChild($bot)
+      const $cell = createSprite(id, step)
+      $el.appendChild($cell)
+      setSpritePosition($cell, position, 0)
+      return $cell
+    }).filter(Boolean)
 
-  const move = async (position, angle) => {
-    const viewBox = viewBoxFor(position)
-    if (viewBox !== current) {
-      $animation.setAttribute('from', current)
-      $animation.setAttribute('to', viewBox)
-      $animation.beginElement()
-      current = viewBox
+    const $walls = walls.map(({ type, position }) => {
+      const id = spriteTemplateIds[type]
+      if (!id) return null
+
+      const $wall = createSprite(id, step + 2 * wallSize)
+      $el.appendChild($wall)
+      setWallPosition($wall, position)
+      return $wall
+    }).filter(Boolean)
+
+    const $bot = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    $bot.classList.add('cell')
+    const $botWiggle = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+    const $botSprite = createSprite('bee-template', step)
+    $botWiggle.appendChild($botSprite)
+    $bot.appendChild($botWiggle)
+    $el.appendChild($bot)
+
+    // Record all added elements for this map
+    $mapElements = [...$cells, ...$walls, $bot, $botWiggle, $botSprite]
+
+    const move = async (position, angle) => {
+      const viewBox = viewBoxFor(position)
+      if (viewBox !== current) {
+        $animation.setAttribute('from', current)
+        $animation.setAttribute('to', viewBox)
+        $animation.beginElement()
+        current = viewBox
+      }
+
+      const animationDuration = 1500
+      $bot.style.transitionDuration = `${animationDuration}ms`
+      setSpritePosition($bot, position, angle)
+
+      // HACK: Add a few ms to animation to ensure it's finished
+      await sleep(animationDuration + 250)
     }
 
-    const animationDuration = 1500
-    $bot.style.transitionDuration = `${animationDuration}ms`
-    setSpritePosition($bot, position, angle)
+    const waggle = async () => {
+      $botWiggle.classList.add('wiggle')
+      await sleep(700)
+      $botWiggle.classList.remove('wiggle')
+      await sleep(300)
+    }
 
-    // HACK: Add a few ms to animation to ensure it's finished
-    await sleep(animationDuration + 250)
-  }
-
-  const waggle = async () => {
-    $botWiggle.classList.add('wiggle')
-    await sleep(700)
-    $botWiggle.classList.remove('wiggle')
-    await sleep(300)
-  }
-
-  return (event) => {
-    switch (event.type) {
-      case 'current':
-      case 'moved':
-        return move(event.position, event.orientation.angle)
-      case 'waggled':
-        return waggle()
-      default:
-        console.error('Unknown type of bot event', event)
+    return (event) => {
+      switch (event.type) {
+        case 'current':
+        case 'moved':
+          return move(event.position, event.orientation.angle)
+        case 'waggled':
+          return waggle()
+        default:
+          console.error('Unknown type of bot event', event)
+      }
     }
   }
 }

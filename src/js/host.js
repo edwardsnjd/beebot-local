@@ -139,7 +139,9 @@ renderControls(m.current())
 m.subscribe(renderControls)
 
 // UI: Board
-const renderBoard = ui.boardUi($map, l.current().map)
+const renderMap = ui.boardUi($map)
+let renderBoard = renderMap(l.current().map)
+l.subscribe((l) => renderBoard = renderMap(l.map))
 renderBoard(b.current())
 b.subscribe(renderBoard)
 
