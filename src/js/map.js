@@ -69,3 +69,33 @@ const partition = (items, predicate) => {
 
   return [ys, ns]
 }
+
+/**
+ * The pre-canned levels.
+ */
+export const levels = [
+  {
+    code: 'map1',
+    map: [
+      '+-+',
+      '|h|',
+      '+ +',
+      '| |',
+      '0 +',
+      '|s|',
+      '+-+',
+    ],
+  },
+  {
+    code: 'map2',
+    map: [
+      '0-+',
+      '|s|',
+      '+ +',
+      '| |',
+      '+ +',
+      '|h|',
+      '+-+',
+    ],
+  },
+].map(({ code, map }) => ({ code, map: parse(map) }))
