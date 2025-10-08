@@ -5,6 +5,19 @@ export const remoteLinkUi = ($el) => (url) => {
   $el.innerHTML = `<qr-code contents='${url}'></qr-code>`
 }
 
+export const levelsUi = ($el, levels, cb) => {
+  levels.map(({ code }, i) => {
+    const $o = document.createElement('option')
+    $o.innerText = `Level ${i+1}`
+    $o.value = code
+    return $o
+  }).forEach(($o) => $el.appendChild($o))
+
+  $el.addEventListener('change', (e) => cb(e.target.value))
+
+  return ({ code }) => $el.value = code
+}
+
 export const controlsUi = ($el, sendEvent) => {
   const up = $el.querySelector('.up')
   const right = $el.querySelector('.right')

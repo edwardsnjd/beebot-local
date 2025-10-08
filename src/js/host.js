@@ -3,7 +3,7 @@ import { listenForRemotes } from './peers.js'
 import { createMachine, createBot, createProgram, createInterpreter } from './core.js'
 import * as ui from './ui.js'
 import { eventHub } from './core.js'
-import { parse } from './map.js'
+import { parse, levels } from './map.js'
 
 // Per connection constants
 const secret = new URL(window.location).searchParams.get('secret')
@@ -20,17 +20,22 @@ const channelLabel = 'chat'
 const b = createBot()
 const p = createProgram()
 
-const map = parse([
-  '+-+',
-  '|h|',
-  '+ +',
-  '| |',
-  '0 +',
-  '|s|',
-  '+-+',
-])
+const createLevel = (levels) => {
+  let level = null
+  const { subscribe, notify } = eventHub('level')
 
-const i = createInterpreter(b, map)
+  const current = () => level
+  const set = (newCode) => {
+    level = levels.find(({ code }) => code === newCode)
+    return notify(current())
+  }
+
+  return { current, set, subscribe }
+}
+const l = createLevel(levels)
+l.set(levels[0].code)
+
+const i = createInterpreter(b, l.current().map)
 
 const m = createMachine({
   initial: 'idle',
@@ -110,6 +115,7 @@ listenForRemotes(config, (remote) => {
 const $remoteLink = document.getElementById('remoteLink')
 const $controls = document.getElementById('controls')
 const $board = document.getElementById('board')
+const $picker = document.getElementById('picker')
 const $map = document.getElementById('map')
 const $program = document.getElementById('program')
 const $connections = document.getElementById('connections')
@@ -118,13 +124,16 @@ const $connections = document.getElementById('connections')
 const remoteUrl = `${$remoteLink.href}?host=${hostId}&secret=${secret}`
 ui.remoteLinkUi($remoteLink)(remoteUrl)
 
+// UI: Picker
+const renderPicker = ui.levelsUi($picker, levels, (code) => l.set(code))
+
 // UI: Controls
 const renderControls = ui.controlsUi($controls, (cmd) => m.send(cmd))
 renderControls(m.current())
 m.subscribe(renderControls)
 
 // UI: Board
-const renderBoard = ui.boardUi($map, map)
+const renderBoard = ui.boardUi($map, l.current().map)
 renderBoard(b.current())
 b.subscribe(renderBoard)
 
