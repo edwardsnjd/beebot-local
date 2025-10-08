@@ -101,10 +101,14 @@ export const boardUi = ($el, { cells, walls }) => {
     setWallPosition($wall, position)
   })
 
-  const $bot = createSprite('bee-template', step)
+  const $bot = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  const $botWiggle = document.createElementNS('http://www.w3.org/2000/svg', 'g')
+  const $botSprite = createSprite('bee-template', step)
+  $botWiggle.appendChild($botSprite)
+  $bot.appendChild($botWiggle)
   $el.appendChild($bot)
 
-  return async ({ position, orientation: { angle } }) => {
+  const move = async (position, angle) => {
     const viewBox = viewBoxFor(position)
     if (viewBox !== current) {
       $animation.setAttribute('from', current)
@@ -119,6 +123,25 @@ export const boardUi = ($el, { cells, walls }) => {
 
     // HACK: Add a few ms to animation to ensure it's finished
     await sleep(animationDuration + 250)
+  }
+
+  const waggle = async () => {
+    $botWiggle.classList.add('wiggle')
+    await sleep(700)
+    $botWiggle.classList.remove('wiggle')
+    await sleep(300)
+  }
+
+  return (event) => {
+    switch (event.type) {
+      case 'current':
+      case 'moved':
+        return move(event.position, event.orientation.angle)
+      case 'waggled':
+        return waggle()
+      default:
+        console.error('Unknown type of bot event', event)
+    }
   }
 }
 

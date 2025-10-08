@@ -68,6 +68,18 @@ main {
   transition-timing-function: ease-in-out;
 }
 
+.wiggle {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: wiggle 0.2s ease-in-out infinite;
+}
+
+@keyframes wiggle {
+  0%   { transform: rotate(-5deg);}
+  50%  { transform: rotate(5deg);}
+  100% { transform: rotate(-5deg);}
+}
+
 main > * {
   border: 1px solid grey;
   border-radius: 1em;
@@ -107,4 +119,15 @@ main > * {
 
 #program .highlight.active {
   display: block;
+}
+
+.wiggle .bot-wiggle {
+  animation: wiggle 0.3s ease-in-out infinite;
+  transform-origin: 50% 50%;
+}
+
+@keyframes wiggle {
+  0%   { transform: rotate(-5deg);}
+  50%  { transform: rotate(5deg);}
+  100% { transform: rotate(-5deg);}
 }

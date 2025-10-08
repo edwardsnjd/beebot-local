@@ -103,23 +103,24 @@ export const createBot = () => {
 
   const { subscribe, notify } = eventHub('bot')
 
-  const current = () => ({ position, orientation })
-  const update = (newPosition, newOrientation) => {
+  const current = () => ({ type: 'current', position, orientation })
+  const moved = () => ({ type: 'moved', position, orientation })
+  const waggled = () => ({ type: 'waggled', position, orientation })
+
+  const move = (newPosition, newOrientation) => {
     position = newPosition
     orientation = newOrientation
-    return notify(current())
+    return notify(moved())
   }
 
-  const move = (x, y) =>
-    update({
-      x: position.x + x,
-      y: position.y + y,
-    }, orientation)
-  const rotate = (change) =>
-    update(position, {
-      direction: (orientation.direction + 4 + change) % 4,
-      angle: orientation.angle + change * 90,
-    })
+  const changePosition = (dx, dy) => ({
+    x: position.x + dx,
+    y: position.y + dy,
+  })
+  const changeOrientation = (orientation, change) => ({
+    direction: (orientation.direction + 4 + change) % 4,
+    angle: orientation.angle + change * 90,
+  })
 
   const orientationVectors = {
     [Directions.Up]: { x: 0, y: -1 },
@@ -129,23 +130,20 @@ export const createBot = () => {
   }
   const forward = () => {
     const change = orientationVectors[orientation.direction]
-    return move(change.x, change.y)
+    return move(changePosition(change.x, change.y), orientation)
   }
   const backward = () => {
     const change = orientationVectors[orientation.direction]
-    return move(-change.x, -change.y)
+    return move(changePosition(-change.x, -change.y), orientation)
   }
-  const right = () => rotate(1)
-  const left = () => rotate(-1)
+  const right = () => move(position, changeOrientation(orientation, 1))
+  const left = () => move(position, changeOrientation(orientation, -1))
   const pause = () => sleep(1000)
-  const waggle = async () => {
-    await rotate(0.2)
-    await rotate(-0.4)
-    await rotate(0.2)
-  }
-  const goHome = () => Promise.resolve()
-    .then(() => move(-position.x, -position.y))
-    .then(() => rotate(-orientation.angle / 90))
+  const waggle = () => notify(waggled())
+  const goHome = () => move(
+    changePosition(-position.x, -position.y),
+    changeOrientation(orientation, (-orientation.angle / 90)),
+  )
 
   return { current, forward, right, backward, left, pause, goHome, waggle, subscribe }
 }
