@@ -159,9 +159,9 @@ export const boardUi = ($el) => {
 
     const waggle = async () => {
       $botWiggle.classList.add('wiggle')
-      await sleep(700)
+      await sleep(500)
       $botWiggle.classList.remove('wiggle')
-      await sleep(300)
+      await sleep(200)
     }
 
     return (event) => {
