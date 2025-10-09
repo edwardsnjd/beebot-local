@@ -167,6 +167,14 @@ export const boardUi = ($el) => {
 
       // HACK: Add a few ms to animation to ensure it's finished
       await sleep(animationDuration + 250)
+
+      // Highlight active targets
+      cellsInfo
+        .filter(({ role }) => role === 'target')
+        .forEach(({ sprite, position: p }) => {
+          const isOver = p.x == position.x && p.y === position.y
+          sprite.classList[isOver ? 'add' : 'remove']('active')
+        })
     }
 
     const waggle = async () => {

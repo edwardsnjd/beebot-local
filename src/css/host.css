@@ -78,6 +78,11 @@ main {
   min-height: 60vh;
 }
 
+.active {
+  --bg: cornflowerblue;
+  --border: red;
+}
+
 .cell {
   transform-origin: center;
   transform-box: fill-box;
