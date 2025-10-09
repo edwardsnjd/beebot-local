@@ -4,6 +4,7 @@ export const Wall = {
 }
 
 export const parse = (lines) => {
+  let rawHome = { x: 0, y: 0 }
   const rawCells = []
   const rawWalls = []
   let offset = { x: 0, y: 0 }
@@ -27,6 +28,7 @@ export const parse = (lines) => {
       })
       odds.forEach((c, x) => {
         if (c !== ' ') rawCells.push(buildCell(c, { x, y }))
+        if (c === 's') rawHome = { x, y }
       })
     }
   })
@@ -34,6 +36,7 @@ export const parse = (lines) => {
   return {
     cells: rawCells.map(adjustByOffset(offset)),
     walls: rawWalls.map(adjustByOffset(offset)),
+    home: minus(rawHome, offset),
   }
 }
 
@@ -79,9 +82,9 @@ export const levels = [
     map: [
       '+-+',
       '|h|',
-      '+ +',
-      '| |',
       '0 +',
+      '| |',
+      '+ +',
       '|s|',
       '+-+',
     ],
@@ -89,9 +92,9 @@ export const levels = [
   {
     code: 'map2',
     map: [
-      '0-+',
+      '+-+',
       '|s|',
-      '+ +',
+      '0 +',
       '| |',
       '+ +',
       '|h|',

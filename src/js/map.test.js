@@ -156,4 +156,39 @@ describe('Map', () => {
       assert(walls.find(({ position: { x,y } }) => x === 0 && y === 0))
     })
   })
+
+  describe('home', () => {
+    it('defaults home to origin', () => {
+      const home = parse([
+        '+ + + +',
+        '       ',
+        '+ + + +',
+      ]).home
+
+      assertEqual(home.x, 0)
+      assertEqual(home.y, 0)
+    })
+
+    it('accepts home', () => {
+      const home = parse([
+        '+ + + +',
+        '     s ',
+        '+ + + +',
+      ]).home
+
+      assertEqual(home.x, 2)
+      assertEqual(home.y, 0)
+    })
+
+    it('respects origin for home', () => {
+      const home = parse([
+        '+ + + +',
+        '     s ',
+        '+ 0 + +',
+      ]).home
+
+      assertEqual(home.x, 1)
+      assertEqual(home.y, -1)
+    })
+  })
 })
