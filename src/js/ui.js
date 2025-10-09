@@ -152,6 +152,8 @@ export const boardUi = ($el) => {
       $bot,
     ]
 
+    const targets = cellsInfo.filter(({ role }) => role === 'target')
+
     const move = async (position, angle) => {
       const viewBox = viewBoxFor(position)
       if (viewBox !== current) {
@@ -161,6 +163,9 @@ export const boardUi = ($el) => {
         current = viewBox
       }
 
+      // Deselect all targets
+      targets.forEach(({ sprite }) => sprite.classList.remove('active'))
+
       const animationDuration = 1500
       $bot.style.transitionDuration = `${animationDuration}ms`
       setSpritePosition($bot, position, angle)
@@ -169,12 +174,10 @@ export const boardUi = ($el) => {
       await sleep(animationDuration + 250)
 
       // Highlight active targets
-      cellsInfo
-        .filter(({ role }) => role === 'target')
-        .forEach(({ sprite, position: p }) => {
-          const isOver = p.x == position.x && p.y === position.y
-          sprite.classList[isOver ? 'add' : 'remove']('active')
-        })
+      targets.forEach(({ sprite, position: p }) => {
+        const isOver = p.x == position.x && p.y === position.y
+        if (isOver) sprite.classList.add('active')
+      })
     }
 
     const waggle = async () => {
