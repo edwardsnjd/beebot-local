@@ -119,7 +119,7 @@ export const boardUi = ($el) => {
     $tick.setAttribute('height', 100)
     $tick.setAttribute('x', -40)
     $tick.setAttribute('y', -40)
-    $tick.setAttribute('style', 'display: none; opacity: 0.3')
+    $tick.setAttribute('style', 'display: none; opacity: 0.35')
     $el.appendChild($tick)
 
     const cellsInfo = cells.map(cell => {
