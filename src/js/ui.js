@@ -67,26 +67,30 @@ export const boardUi = ($el) => {
     y: y * step,
   })
 
-  const createSprite = (id, size) => {
-    const $cell = document.createElementNS('http://www.w3.org/2000/svg', 'use')
-    $cell.setAttribute('href', `#${id}`)
+  const createSprite = (id) => {
+    const $sprite = document.createElementNS('http://www.w3.org/2000/svg', 'use')
+    $sprite.setAttribute('href', `#${id}`)
+    return $sprite
+  }
+
+  const createCell = (id, size) => {
+    const $cell = createSprite(id)
     $cell.setAttribute('width', size)
     $cell.setAttribute('height', size)
     $cell.classList.add('cell')
-
     return $cell
   }
 
-  const setSpritePosition = ($cell, position, angle = 0) => {
+  const setSpritePosition = ($sprite, position, angle = 0) => {
     const coord = toCoord(position)
-    $cell.style.transform = `
+    $sprite.style.transform = `
       translate(${coord.x}px, ${coord.y}px)
       rotate(${angle}deg)
     `
   }
-  const setWallPosition = ($wall, position, angle = 0) => {
+  const setWallPosition = ($sprite, position, angle = 0) => {
     const coord = toCoord(position)
-    $wall.style.transform = `
+    $sprite.style.transform = `
       translate(${coord.x - 2}px, ${coord.y - 2}px)
       rotate(${angle}deg)
     `
@@ -97,6 +101,7 @@ export const boardUi = ($el) => {
     's': { id: 'start-template', role: 'start' },
     'horizontal': { id: 'horizWall-template' },
     'vertical': { id: 'vertWall-template' },
+    'tick': { id: 'tick' },
   }
 
   let $mapElements = []
@@ -109,13 +114,21 @@ export const boardUi = ($el) => {
   return ({ cells, walls }) => {
     resetMap()
 
+    const $tick = createCell('tick', step)
+    $tick.setAttribute('width', 100)
+    $tick.setAttribute('height', 100)
+    $tick.setAttribute('x', -40)
+    $tick.setAttribute('y', -40)
+    $tick.setAttribute('style', 'display: none; opacity: 0.3')
+    $el.appendChild($tick)
+
     const cellsInfo = cells.map(cell => {
       const { content, position } = cell
 
       const spriteInfo = spritesInfo[content]
       if (!spriteInfo) return null
 
-      const $sprite = createSprite(spriteInfo.id, step)
+      const $sprite = createCell(spriteInfo.id, step)
       $el.appendChild($sprite)
       setSpritePosition($sprite, position, 0)
 
@@ -128,7 +141,7 @@ export const boardUi = ($el) => {
       const spriteInfo = spritesInfo[type]
       if (!spriteInfo) return null
 
-      const $sprite = createSprite(spriteInfo.id, step + 2 * wallSize)
+      const $sprite = createCell(spriteInfo.id, step + 2 * wallSize)
       $el.appendChild($sprite)
       setWallPosition($sprite, position)
 
@@ -138,7 +151,7 @@ export const boardUi = ($el) => {
     const $bot = document.createElementNS('http://www.w3.org/2000/svg', 'g')
     $bot.classList.add('cell')
     const $botWiggle = document.createElementNS('http://www.w3.org/2000/svg', 'g')
-    const $botSprite = createSprite('bee-template', step)
+    const $botSprite = createCell('bee-template', step)
     $botWiggle.appendChild($botSprite)
     $bot.appendChild($botWiggle)
     $el.appendChild($bot)
@@ -150,6 +163,7 @@ export const boardUi = ($el) => {
       $botSprite,
       $botWiggle,
       $bot,
+      $tick,
     ]
 
     const targets = cellsInfo.filter(({ role }) => role === 'target')
@@ -165,6 +179,7 @@ export const boardUi = ($el) => {
 
       // Deselect all targets
       targets.forEach(({ sprite }) => sprite.classList.remove('active'))
+      $tick.style.display = 'none'
 
       const animationDuration = 1500
       $bot.style.transitionDuration = `${animationDuration}ms`
@@ -176,7 +191,10 @@ export const boardUi = ($el) => {
       // Highlight active targets
       targets.forEach(({ sprite, position: p }) => {
         const isOver = p.x == position.x && p.y === position.y
-        if (isOver) sprite.classList.add('active')
+        if (isOver) {
+          sprite.classList.add('active')
+          $tick.style.display = 'block'
+        }
       })
     }
 
