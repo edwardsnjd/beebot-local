@@ -98,6 +98,7 @@ export const createProgram = () => {
 export const Directions = { Up: 0, Right: 1, Down: 2, Left: 3 }
 
 export const createBot = () => {
+  let home = { x: 0, y: 0 }
   let position = { x: 0, y: 0 }
   let orientation = { direction: Directions.Up, angle: 0 }
 
@@ -140,12 +141,13 @@ export const createBot = () => {
   const left = () => move(position, changeOrientation(orientation, -1))
   const pause = () => sleep(1000)
   const waggle = () => notify(waggled())
+  const setHome = (newHome) => home = newHome
   const goHome = () => move(
-    changePosition(-position.x, -position.y),
+    home,
     changeOrientation(orientation, (-orientation.angle / 90)),
   )
 
-  return { current, forward, right, backward, left, pause, goHome, waggle, subscribe }
+  return { current, forward, right, backward, left, pause, setHome, goHome, waggle, subscribe }
 }
 
 export const createInterpreter = (b, findWall) => {

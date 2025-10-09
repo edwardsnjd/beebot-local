@@ -34,6 +34,8 @@ const createLevel = (levels) => {
 }
 const l = createLevel(levels)
 l.set(levels[0].code)
+b.setHome(l.current().map.home)
+b.goHome()
 
 const findWall = (type, x, y) =>
   l.current()
@@ -144,8 +146,9 @@ renderBoard(b.current())
 b.subscribe((...state) => renderBoard(...state))
 l.subscribe(async (l) => {
   p.reset()
-  await b.goHome()
+  b.setHome(l.map.home)
   renderBoard = renderMap(l.map)
+  await b.goHome()
 })
 
 // UI: Program
