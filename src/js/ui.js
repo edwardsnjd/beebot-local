@@ -92,11 +92,11 @@ export const boardUi = ($el) => {
     `
   }
 
-  const spriteTemplateIds = {
-    'h': 'hive-template',
-    's': 'start-template',
-    'horizontal': 'horizWall-template',
-    'vertical': 'vertWall-template',
+  const spritesInfo = {
+    'h': { id: 'hive-template', role: 'target' },
+    's': { id: 'start-template', role: 'start' },
+    'horizontal': { id: 'horizWall-template' },
+    'vertical': { id: 'vertWall-template' },
   }
 
   let $mapElements = []
@@ -109,24 +109,30 @@ export const boardUi = ($el) => {
   return ({ cells, walls }) => {
     resetMap()
 
-    const $cells = cells.map(({ content, position }) => {
-      const id = spriteTemplateIds[content]
-      if (!id) return null
+    const cellsInfo = cells.map(cell => {
+      const { content, position } = cell
 
-      const $cell = createSprite(id, step)
-      $el.appendChild($cell)
-      setSpritePosition($cell, position, 0)
-      return $cell
+      const spriteInfo = spritesInfo[content]
+      if (!spriteInfo) return null
+
+      const $sprite = createSprite(spriteInfo.id, step)
+      $el.appendChild($sprite)
+      setSpritePosition($sprite, position, 0)
+
+      return { sprite: $sprite, position, role: spriteInfo.role }
     }).filter(Boolean)
 
-    const $walls = walls.map(({ type, position }) => {
-      const id = spriteTemplateIds[type]
-      if (!id) return null
+    const $walls = walls.map((wall) => {
+      const { type, position } = wall
 
-      const $wall = createSprite(id, step + 2 * wallSize)
-      $el.appendChild($wall)
-      setWallPosition($wall, position)
-      return $wall
+      const spriteInfo = spritesInfo[type]
+      if (!spriteInfo) return null
+
+      const $sprite = createSprite(spriteInfo.id, step + 2 * wallSize)
+      $el.appendChild($sprite)
+      setWallPosition($sprite, position)
+
+      return $sprite
     }).filter(Boolean)
 
     const $bot = document.createElementNS('http://www.w3.org/2000/svg', 'g')
@@ -138,7 +144,13 @@ export const boardUi = ($el) => {
     $el.appendChild($bot)
 
     // Record all added elements for this map
-    $mapElements = [...$cells, ...$walls, $bot, $botWiggle, $botSprite]
+    $mapElements = [
+      ...cellsInfo.map(({ sprite }) => sprite),
+      ...$walls,
+      $botSprite,
+      $botWiggle,
+      $bot,
+    ]
 
     const move = async (position, angle) => {
       const viewBox = viewBoxFor(position)
