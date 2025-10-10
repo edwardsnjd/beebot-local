@@ -8,7 +8,7 @@ export const remoteLinkUi = ($el) => (url) => {
 export const levelsUi = ($el, levels, cb) => {
   levels.map(({ code }, i) => {
     const $o = document.createElement('option')
-    $o.innerText = `Level ${i+1}`
+    $o.innerText = `Level ${i + 1}`
     $o.value = code
     return $o
   }).forEach(($o) => $el.appendChild($o))
@@ -48,6 +48,8 @@ export const controlsUi = ($el, sendEvent) => {
  */
 export const boardUi = ($el) => {
   const $animation = $el.querySelector('animate')
+  const $background = $el.querySelector('#background')
+  const $objects = $el.querySelector('#objects')
 
   let current = $el.getAttribute('viewBox')
   const [_x, _y, origW, origH] = current.split(' ')
@@ -97,6 +99,7 @@ export const boardUi = ($el) => {
   }
 
   const spritesInfo = {
+    '.': { id: 'cell-template' },
     'h': { id: 'hive-template', role: 'target' },
     's': { id: 'start-template', role: 'start' },
     'horizontal': { id: 'horizWall-template' },
@@ -114,26 +117,26 @@ export const boardUi = ($el) => {
   return ({ cells, walls }) => {
     resetMap()
 
-    const $tick = createCell('tick', step)
-    $tick.setAttribute('width', 100)
-    $tick.setAttribute('height', 100)
-    $tick.setAttribute('x', -40)
-    $tick.setAttribute('y', -40)
-    $tick.setAttribute('style', 'display: none; opacity: 0.35')
-    $el.appendChild($tick)
+    const cellsInfo =
+      cells
+        .flatMap(cell => [
+          cell.content !== '.' ? { content: '.', position: cell.position } : null,
+          cell,
+        ].filter(Boolean))
+        .map(cell => {
+          const { content, position } = cell
 
-    const cellsInfo = cells.map(cell => {
-      const { content, position } = cell
+          const spriteInfo = spritesInfo[content]
+          if (!spriteInfo) return null
 
-      const spriteInfo = spritesInfo[content]
-      if (!spriteInfo) return null
+          const $sprite = createCell(spriteInfo.id, step)
+          const $layer = spriteInfo.role ? $objects : background
+          $layer.appendChild($sprite)
+          setSpritePosition($sprite, position, 0)
 
-      const $sprite = createCell(spriteInfo.id, step)
-      $el.appendChild($sprite)
-      setSpritePosition($sprite, position, 0)
-
-      return { sprite: $sprite, position, role: spriteInfo.role }
-    }).filter(Boolean)
+          return { sprite: $sprite, position, role: spriteInfo.role }
+        })
+        .filter(Boolean)
 
     const $walls = walls.map((wall) => {
       const { type, position } = wall
@@ -155,6 +158,14 @@ export const boardUi = ($el) => {
     $botWiggle.appendChild($botSprite)
     $bot.appendChild($botWiggle)
     $el.appendChild($bot)
+
+    const $tick = createCell('tick', step)
+    $tick.setAttribute('width', 100)
+    $tick.setAttribute('height', 100)
+    $tick.setAttribute('x', -40)
+    $tick.setAttribute('y', -40)
+    $tick.setAttribute('style', 'opacity: 0; transition: opacity 1s linear;')
+    $el.appendChild($tick)
 
     // Record all added elements for this map
     $mapElements = [
@@ -179,7 +190,7 @@ export const boardUi = ($el) => {
 
       // Deselect all targets
       targets.forEach(({ sprite }) => sprite.classList.remove('active'))
-      $tick.style.display = 'none'
+      $tick.style.opacity = 0
 
       const animationDuration = 1500
       $bot.style.transitionDuration = `${animationDuration}ms`
@@ -193,7 +204,7 @@ export const boardUi = ($el) => {
         const isOver = p.x == position.x && p.y === position.y
         if (isOver) {
           sprite.classList.add('active')
-          $tick.style.display = 'block'
+          $tick.style.opacity = 0.7
         }
       })
     }
