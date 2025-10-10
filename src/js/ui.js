@@ -42,6 +42,7 @@ export const controlsUi = ($el, sendEvent) => {
   const go = $el.querySelector('.go')
   const reset = $el.querySelector('.reset')
   const pause = $el.querySelector('.pause')
+  const back = $el.querySelector('.back')
   const home = $el.querySelector('.home')
 
   up.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Forwards }))
@@ -51,6 +52,7 @@ export const controlsUi = ($el, sendEvent) => {
   pause.addEventListener('click', () => sendEvent({ type: 'add', cmd: Commands.Pause }))
   go.addEventListener('click', () => sendEvent({ type: 'go' }))
   reset.addEventListener('click', () => sendEvent({ type: 'reset' }))
+  back.addEventListener('click', () => sendEvent({ type: 'back' }))
   home.addEventListener('click', () => sendEvent({ type: 'home' }))
 
   return (state) => {

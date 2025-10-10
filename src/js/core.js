@@ -84,6 +84,10 @@ export const createProgram = () => {
     program.push(cmd)
     notify(program)
   }
+  const back = () => {
+    program.pop()
+    notify(program)
+  }
   const reset = () => {
     program = []
     notify(program)
@@ -92,7 +96,7 @@ export const createProgram = () => {
   const interpret = (actionFn) =>
     Promise.seq(program.map(actionFn))
 
-  return { current, add, reset, interpret, subscribe }
+  return { current, add, back, reset, interpret, subscribe }
 }
 
 export const Directions = { Up: 0, Right: 1, Down: 2, Left: 3 }

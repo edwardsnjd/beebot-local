@@ -51,6 +51,7 @@ const m = createMachine({
     on: {
       add: { action: (e) => p.add(e.cmd) },
       reset: { action: () => p.reset() },
+      back: { action: () => p.back() },
       home: { action: () => b.goHome() },
       go: { target: 'running' },
     },
