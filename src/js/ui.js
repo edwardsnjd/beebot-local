@@ -5,13 +5,29 @@ export const remoteLinkUi = ($el) => (url) => {
   $el.innerHTML = `<qr-code contents='${url}'></qr-code>`
 }
 
+const groupBy = (items, fn) =>
+  items.reduce((groups, level) => ({
+    ...groups,
+    [fn(level)]: [...(groups[fn(level)] || []), level]
+  }), {})
+
 export const levelsUi = ($el, levels, cb) => {
-  levels.map(({ code }, i) => {
-    const $o = document.createElement('option')
-    $o.innerText = `Level ${i + 1}`
-    $o.value = code
-    return $o
-  }).forEach(($o) => $el.appendChild($o))
+  const groups = groupBy(levels, (level) => level.group)
+  Object.keys(groups)
+    .map(group => {
+      const $og = document.createElement('optgroup')
+      $og.setAttribute('label', group)
+      groups[group]
+        .map(({ code }, i) => {
+          const $o = document.createElement('option')
+          $o.innerText = `Level ${i + 1}`
+          $o.value = code
+          return $o
+        })
+        .forEach(($o) => $og.appendChild($o))
+      return $og
+    })
+    .forEach(($og) => $el.appendChild($og))
 
   $el.addEventListener('change', (e) => cb(e.target.value))
 

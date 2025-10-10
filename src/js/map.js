@@ -79,6 +79,7 @@ const partition = (items, predicate) => {
 export const levels = [
   {
     code: 'map1',
+    group: 'Training',
     map: [
       '+-+',
       '|h|',
@@ -91,6 +92,7 @@ export const levels = [
   },
   {
     code: 'map2',
+    group: 'Training',
     map: [
       '+-+',
       '|s|',
@@ -103,6 +105,7 @@ export const levels = [
   },
   {
     code: 'map3',
+    group: 'Training',
     map: [
       '0-+-+-+',
       '|s . h|',
@@ -111,6 +114,7 @@ export const levels = [
   },
   {
     code: 'map4',
+    group: 'Training',
     map: [
       '+-+-0-+',
       '|h . s|',
@@ -119,6 +123,7 @@ export const levels = [
   },
   {
     code: 'map5',
+    group: 'Training',
     map: [
       '+-+-+',
       '|. h|',
@@ -129,6 +134,7 @@ export const levels = [
   },
   {
     code: 'map6',
+    group: 'Training',
     map: [
       '+-+-+',
       '|h .|',
@@ -139,6 +145,7 @@ export const levels = [
   },
   {
     code: 'map7',
+    group: 'Training',
     map: [
       '+-+',
       '|h|',
@@ -149,6 +156,7 @@ export const levels = [
   },
   {
     code: 'map8',
+    group: 'Training',
     map: [
       '+ +-+',
       '  |h|',
@@ -159,6 +167,7 @@ export const levels = [
   },
   {
     code: 'map9',
+    group: 'Training',
     map: [
       '+ +-+',
       '  |h|',
@@ -171,6 +180,7 @@ export const levels = [
   },
   {
     code: 'map10',
+    group: 'Training',
     map: [
       '+-+',
       '|h|',
@@ -183,6 +193,7 @@ export const levels = [
   },
   {
     code: 'map11',
+    group: 'Beebot',
     map: [
       '+ + + +',
       ' h . . ',
@@ -195,6 +206,7 @@ export const levels = [
   },
   {
     code: 'map12',
+    group: 'Beebot',
     map: [
       '+ + + +',
       ' h . . ',
@@ -209,6 +221,7 @@ export const levels = [
   },
   {
     code: 'map13',
+    group: 'Beebot',
     map: [
       '    + + + +',
       '     . h|. ',
@@ -223,4 +236,4 @@ export const levels = [
       '    + +',
     ],
   },
-].map(({ code, map }) => ({ code, map: parse(map) }))
+].map(({ code, group ,map }) => ({ code, group, map: parse(map) }))
