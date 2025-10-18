@@ -127,6 +127,7 @@ const $picker = document.getElementById('picker')
 const $map = document.getElementById('map')
 const $program = document.getElementById('program')
 const $connections = document.getElementById('connections')
+const $tabs = document.querySelectorAll('.tabs')
 
 // UI: Remotes
 const remoteUrl = `${$remoteLink.href}?host=${hostId}&secret=${secret}`
@@ -163,3 +164,6 @@ i.subscribe(updateProgram)
 const renderConnections = ui.connectionsUi($connections)
 renderConnections(mgr.current())
 mgr.subscribe(renderConnections)
+
+// UI: Tabs
+$tabs.forEach($tab => ui.tabsUi($tab))

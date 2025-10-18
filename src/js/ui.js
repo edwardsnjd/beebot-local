@@ -289,3 +289,27 @@ export const programUi = ($el) => {
 
 export const connectionsUi = ($el) => (remotes) =>
   $el.innerHTML = JSON.stringify(remotes)
+
+export const tabsUi = ($el) => {
+  const $tabs = Array.from($el.querySelectorAll('[data-tab-target]'))
+
+  const findTarget = ($tab) => $el.querySelector($tab.dataset.tabTarget)
+
+  const setTab = ($selectedTab) => {
+    const selectedTabs = $tabs.filter($tab => $tab === $selectedTab)
+    const unselectedTabs = $tabs.filter($tab => $tab !== $selectedTab)
+    // Select tab
+    selectedTabs.forEach($tab => $tab.classList.add('active'))
+    unselectedTabs.forEach($tab => $tab.classList.remove('active'))
+    // Select content
+    selectedTabs.map(findTarget).forEach($target => $target.style.display = 'block')
+    unselectedTabs.map(findTarget).forEach($target => $target.style.display = 'none')
+  }
+
+  // Pick first active tab
+  const $selectedTab = $tabs.find($tab => $tab.classList.contains('active'))
+  if ($selectedTab) setTab($selectedTab)
+
+  // Listen for tab changes
+  $tabs.forEach($tab => $tab.addEventListener('click', () => setTab($tab)))
+}

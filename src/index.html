@@ -113,26 +113,32 @@
         <div class="highlight"></div>
       </div>
 
-      <div id="control">
-        <div id="controls">
-          <div id="controls-buttons">
-            <button class="up">⬆️</button>
-            <button class="right">➡️</button>
-            <button class="down">⬇️</button>
-            <button class="left">⬅️</button>
-            <button class="pause">⏸️</button>
-            <button class="go">🟢</button>
-            <button class="back">❌</button>
-            <button class="reset">🗑️</button>
-            <button class="home">🏠</button>
-          </div>
-          <div id="controls-overlay">
-            <div class="indicator">⏳</div>
-          </div>
+      <div class="tabs" id="control">
+        <div class="tabs-navigation">
+          <div class="tab active" data-tab-target="#controls">Local</div>
+          <div class="tab" data-tab-target="#remote">Remote</div>
         </div>
+        <div class="tabs-content">
+          <div id="controls">
+            <div id="controls-buttons">
+              <button class="up">⬆️</button>
+              <button class="right">➡️</button>
+              <button class="down">⬇️</button>
+              <button class="left">⬅️</button>
+              <button class="pause">⏸️</button>
+              <button class="go">🟢</button>
+              <button class="back">❌</button>
+              <button class="reset">🗑️</button>
+              <button class="home">🏠</button>
+            </div>
+            <div id="controls-overlay">
+              <div class="indicator">⏳</div>
+            </div>
+          </div>
 
-        <div id="remote">
-          <a id="remoteLink" href="remote.html" target="_blank"> </a>
+          <div id="remote">
+            <a id="remoteLink" href="remote.html" target="_blank"> </a>
+          </div>
         </div>
       </div>
     </main>

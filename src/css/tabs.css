@@ -1,0 +1,42 @@
+.tabs {
+  padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tabs-navigation {
+  flex: 0 0 2em;
+  border-bottom: 1px solid grey;
+
+  display: flex;
+  flex-direction: row;
+}
+
+/**
+ * Each tab should be equal width, completely fill the flex space, have a border between them (but not on last one), vertically center it's content
+ */
+.tab {
+  flex: 1;
+  padding: 0 1em;
+
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border-right: 1px solid grey;
+  border-bottom: 3px solid lightgrey;
+}
+.tab:last-child {
+  border-right: none;
+}
+
+.tab.active {
+  border-bottom-color: cornflowerblue;
+}
+
+.tabs-content {
+  flex: 1;
+  padding: 1em;
+  overflow: auto;
+}
