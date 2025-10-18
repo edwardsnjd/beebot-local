@@ -12,23 +12,23 @@ main {
 /* Landscape layout */
 @media (orientation: landscape) {
   main {
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 2fr 1fr;
     grid-template-rows: auto;
     grid-template-areas:
-      "board program program"
-      "board controls remote";
+      "board program"
+      "board control";
   }
 }
 
 /* Portrait layout */
 @media (orientation: portrait) {
   main {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     grid-template-rows: auto;
     grid-template-areas:
-      "board board"
-      "program program"
-      "controls remote";
+      "board"
+      "program"
+      "control";
   }
 }
 
@@ -41,15 +41,13 @@ main {
     grid-template-areas:
       "board"
       "program"
-      "controls"
-      "remote";
+      "control";
   }
 }
 
 #board { grid-area: board; }
 #program { grid-area: program; }
-#controls { grid-area: controls; }
-#remote { grid-area: remote; }
+#control { grid-area: control; }
 
 #board {
   padding: 0;
@@ -106,6 +104,12 @@ main > * {
   border-radius: 1em;
   padding: 1em;
   overflow: hidden;
+}
+
+#control {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
 }
 
 #remote {
