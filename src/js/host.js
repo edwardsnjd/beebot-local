@@ -3,7 +3,7 @@ import { listenForRemotes } from './peers.js'
 import { createMachine, createBot, createProgram, createInterpreter } from './core.js'
 import * as ui from './ui.js'
 import { eventHub } from './core.js'
-import { parse, levels } from './map.js'
+import { levels } from './map.js'
 
 // Per connection constants
 const secret = new URL(window.location).searchParams.get('secret')
