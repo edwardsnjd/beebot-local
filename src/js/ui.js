@@ -31,7 +31,7 @@ export const levelsUi = ($el, levels, cb) => {
 
   $el.addEventListener('change', (e) => cb(e.target.value))
 
-  return ({ code }) => $el.value = code
+  return (level) => $el.value = level.code
 }
 
 export const controlsUi = ($el, sendEvent) => {
@@ -61,9 +61,6 @@ export const controlsUi = ($el, sendEvent) => {
   }
 }
 
-/**
- * @return (DOM -> Level -> Event)
- */
 export const boardUi = ($el) => {
   const $animation = $el.querySelector('animate')
   const $background = $el.querySelector('#background')
@@ -132,7 +129,9 @@ export const boardUi = ($el) => {
     $mapElements = []
   }
 
-  return ({ cells, walls }) => {
+  return (level) => {
+    const { cells, walls } = level
+
     resetMap()
 
     const cellsInfo =
@@ -148,7 +147,7 @@ export const boardUi = ($el) => {
           if (!spriteInfo) return null
 
           const $sprite = createCell(spriteInfo.id, step)
-          const $layer = spriteInfo.role ? $objects : background
+          const $layer = spriteInfo.role ? $objects : $background
           $layer.appendChild($sprite)
           setSpritePosition($sprite, position, 0)
 
