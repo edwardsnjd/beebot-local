@@ -1,12 +1,15 @@
-import { openSocketForGame } from './signalling.js'
-import { listenForRemotes } from './peers.js'
 import {
-  createMachine, createBot,
-  createProgram, createLevel,
-  createInterpreter, connectionsManager,
+  connectionsManager,
+  createBot,
+  createInterpreter,
+  createLevel,
+  createMachine,
+  createProgram,
 } from './core.js'
-import * as ui from './ui.js'
 import { levels } from './map.js'
+import { listenForRemotes } from './peers.js'
+import { openSocketForGame } from './signalling.js'
+import * as ui from './ui.js'
 
 // Per connection constants
 const secret = new URL(window.location).searchParams.get('secret')
