@@ -197,6 +197,7 @@ export const boardUi = ($el) => {
 
     const targets = cellsInfo.filter(({ role }) => role === 'target')
 
+    /** Move the bot and return when done */
     const move = async (position, angle) => {
       const viewBox = viewBoxFor(position)
       if (viewBox !== current) {
@@ -227,6 +228,7 @@ export const boardUi = ($el) => {
       })
     }
 
+    /** Waggle the bee and return when done */
     const waggle = async () => {
       $botWiggle.classList.add('wiggle')
       await sleep(500)
