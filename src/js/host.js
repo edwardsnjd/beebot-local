@@ -135,6 +135,7 @@ ui.remoteLinkUi($remoteLink)(remoteUrl)
 
 // UI: Picker
 const renderPicker = ui.levelsUi($picker, levels, (code) => l.set(code))
+l.subscribe(renderPicker)
 
 // UI: Controls
 const renderControls = ui.controlsUi($controls, (cmd) => m.send(cmd))
