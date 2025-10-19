@@ -154,6 +154,19 @@ export const createBot = () => {
   return { current, forward, right, backward, left, pause, setHome, goHome, waggle, subscribe }
 }
 
+export const createLevel = (levels) => {
+  let level = null
+  const { subscribe, notify } = eventHub('level')
+
+  const current = () => level
+  const set = (newCode) => {
+    level = levels.find(({ code }) => code === newCode)
+    return notify(current())
+  }
+
+  return { current, set, subscribe }
+}
+
 export const createInterpreter = (b, findWall) => {
   if (!b) throw 'Must supply the bot to move'
   if (!findWall) throw 'Must supply the map'
@@ -216,4 +229,40 @@ const canMove = (findWall, current, command) => {
     default:
       return true
   }
+}
+
+export const connectionsManager = () => {
+  let remotes = []
+
+  const { subscribe, notify } = eventHub('connections')
+
+  const current = () =>
+    remotes.map(r => ({
+      id: r.id,
+      channel: {
+        id: r.channel.channel.id,
+        label: r.channel.channel.label,
+        readyState: r.channel.channel.readyState,
+      },
+      connection: {
+        connectionState: r.connection.connectionState,
+        signalingState: r.connection.signalingState,
+      },
+    }))
+
+  const publish = () => notify(current())
+
+  const add = (remote) => {
+    remotes.push(remote)
+
+    remote.connection.addEventListener('connectionstatechange', publish)
+    remote.connection.addEventListener('signalingstatechange', publish)
+    remote.connection.addEventListener('datachannel', publish)
+    remote.channel.channel.addEventListener('close', publish)
+    remote.channel.channel.addEventListener('error', publish)
+
+    publish()
+  }
+
+  return { current, add, subscribe }
 }

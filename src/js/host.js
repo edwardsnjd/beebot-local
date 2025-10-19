@@ -1,8 +1,11 @@
 import { openSocketForGame } from './signalling.js'
 import { listenForRemotes } from './peers.js'
-import { createMachine, createBot, createProgram, createInterpreter } from './core.js'
+import {
+  createMachine, createBot,
+  createProgram, createLevel,
+  createInterpreter, connectionsManager,
+} from './core.js'
 import * as ui from './ui.js'
-import { eventHub } from './core.js'
 import { levels } from './map.js'
 
 // Per connection constants
@@ -19,20 +22,8 @@ const channelLabel = 'chat'
 
 const b = createBot()
 const p = createProgram()
-
-const createLevel = (levels) => {
-  let level = null
-  const { subscribe, notify } = eventHub('level')
-
-  const current = () => level
-  const set = (newCode) => {
-    level = levels.find(({ code }) => code === newCode)
-    return notify(current())
-  }
-
-  return { current, set, subscribe }
-}
 const l = createLevel(levels)
+
 l.set(levels[0].code)
 b.setHome(l.current().map.home)
 b.goHome()
@@ -66,41 +57,6 @@ const m = createMachine({
 })
 m.start()
 
-const connectionsManager = () => {
-  let remotes = []
-
-  const { subscribe, notify } = eventHub('connections')
-
-  const current = () =>
-    remotes.map(r => ({
-      id: r.id,
-      channel: {
-        id: r.channel.channel.id,
-        label: r.channel.channel.label,
-        readyState: r.channel.channel.readyState,
-      },
-      connection: {
-        connectionState: r.connection.connectionState,
-        signalingState: r.connection.signalingState,
-      },
-    }))
-
-  const publish = () => notify(current())
-
-  const add = (remote) => {
-    remotes.push(remote)
-
-    remote.connection.addEventListener('connectionstatechange', publish)
-    remote.connection.addEventListener('signalingstatechange', publish)
-    remote.connection.addEventListener('datachannel', publish)
-    remote.channel.channel.addEventListener('close', publish)
-    remote.channel.channel.addEventListener('error', publish)
-
-    publish()
-  }
-
-  return { current, add, subscribe }
-}
 const mgr = connectionsManager()
 
 // Start signalling
