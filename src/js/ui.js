@@ -196,26 +196,12 @@ export const boardUi = ($el) => {
 
     const targets = cellsInfo.filter(({ role }) => role === 'target')
 
-    /** Move the bot and return when done */
-    const move = async (position, angle) => {
-      const viewBox = viewBoxFor(position)
-      if (viewBox !== current) {
-        $animation.setAttribute('from', current)
-        $animation.setAttribute('to', viewBox)
-        $animation.beginElement()
-        current = viewBox
-      }
-
+    const withHighlight = async (position, thunk) => {
       // Deselect all targets
       targets.forEach(({ sprite }) => sprite.classList.remove('active'))
       $tick.style.opacity = 0
 
-      const animationDuration = 1500
-      $bot.style.transitionDuration = `${animationDuration}ms`
-      setSpritePosition($bot, position, angle)
-
-      // HACK: Add a few ms to animation to ensure it's finished
-      await sleep(animationDuration + 250)
+      const result = await thunk()
 
       // Highlight active targets
       targets.forEach(({ sprite, position: p }) => {
@@ -225,15 +211,37 @@ export const boardUi = ($el) => {
           $tick.style.opacity = 0.7
         }
       })
+
+      return result
     }
 
+    /** Move the bot and return when done */
+    const move = async (position, angle) =>
+      withHighlight(position, async () => {
+        const viewBox = viewBoxFor(position)
+        if (viewBox !== current) {
+          $animation.setAttribute('from', current)
+          $animation.setAttribute('to', viewBox)
+          $animation.beginElement()
+          current = viewBox
+        }
+
+        const animationDuration = 1500
+        $bot.style.transitionDuration = `${animationDuration}ms`
+        setSpritePosition($bot, position, angle)
+
+        // HACK: Add a few ms to animation to ensure it's finished
+        await sleep(animationDuration + 250)
+      })
+
     /** Waggle the bee and return when done */
-    const waggle = async () => {
-      $botWiggle.classList.add('wiggle')
-      await sleep(500)
-      $botWiggle.classList.remove('wiggle')
-      await sleep(200)
-    }
+    const waggle = async (position) =>
+      withHighlight(position, async () => {
+        $botWiggle.classList.add('wiggle')
+        await sleep(500)
+        $botWiggle.classList.remove('wiggle')
+        await sleep(200)
+      })
 
     return (event) => {
       switch (event.type) {
@@ -241,7 +249,7 @@ export const boardUi = ($el) => {
         case 'moved':
           return move(event.position, event.orientation.angle)
         case 'waggled':
-          return waggle()
+          return waggle(event.position)
         default:
           console.error('Unknown type of bot event', event)
       }
