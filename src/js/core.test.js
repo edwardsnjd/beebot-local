@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-import { describe, it, assert, assertThrows, assertEqual } from './_tests.js'
+import { describe, it, assert, assertThrows, assertThrowsAsync, assertEqual } from './_tests.js'
 import { canMove, createBot, createProgram, createMachine, createInterpreter, Commands } from './core.js'
 import { parse } from './map.js'
 
@@ -22,60 +22,60 @@ describe('Machine', () => {
   })
 
   describe('accepting events', () => {
-    it('explodes if sent nothing', () => {
+    it('explodes if sent nothing', async () => {
       const m = createMachine({ initial: 'foo' })
-      m.start()
-      assertThrows(() => m.send())
+      await m.start()
+      assertThrowsAsync(async () => await m.send())
     })
 
-    it('explodes if sent null', () => {
+    it('explodes if sent null', async () => {
       const m = createMachine({ initial: 'foo' })
-      m.start()
-      assertThrows(() => m.send(null))
+      await m.start()
+      assertThrowsAsync(async () => m.send(null))
     })
 
-    it('explodes if sent {}', () => {
+    it('explodes if sent {}', async () => {
       const m = createMachine({ initial: 'foo' })
-      m.start()
-      assertThrows(() => m.send({ }))
+      await m.start()
+      assertThrowsAsync(async () => await m.send({ }))
     })
 
-    it('accepts valid event', () => {
+    it('accepts valid event', async () => {
       const m = createMachine({ initial: 'foo' })
-      m.start()
-      m.send({ type: 'bar' })
+      await m.start()
+      await m.send({ type: 'bar' })
     })
   })
 
   describe('state changes', () => {
-    it('has initial state once started', () => {
+    it('has initial state once started', async () => {
       const m = createMachine({ initial: 'foo' })
-      m.start()
+      await m.start()
       assert(m.current() === 'foo')
     })
 
-    it('does not change state with unexpected event', () => {
+    it('does not change state with unexpected event', async () => {
       const m = createMachine({ initial: 'foo' })
-      m.start()
-      m.send({ type: 'bar' })
+      await m.start()
+      await m.send({ type: 'bar' })
       assert(m.current() === 'foo')
     })
 
-    it('changes state on valid event', () => {
+    it('changes state on valid event', async () => {
       const m = createMachine({
         initial: 'foo',
         foo: {
           on: { bar: { target: 'baz' } }
         }
       })
-      m.start()
-      m.send({ type: 'bar' })
+      await m.start()
+      await m.send({ type: 'bar' })
       assert(m.current() === 'baz')
     })
   })
 
   describe('state entry actions', () => {
-    it('runs enter for initial state', () => {
+    it('runs enter for initial state', async () => {
       let ran = false
       const m = createMachine({
         initial: 'foo',
@@ -83,11 +83,11 @@ describe('Machine', () => {
           enter: () => ran = true
         }
       })
-      m.start()
+      await m.start()
       assert(ran)
     })
 
-    it('runs enter for new state', () => {
+    it('runs enter for new state', async () => {
       let ran = false
       const m = createMachine({
         initial: 'foo',
@@ -98,12 +98,12 @@ describe('Machine', () => {
           enter: () => ran = true
         }
       })
-      m.start()
-      m.send({ type: 'bar' })
+      await m.start()
+      await m.send({ type: 'bar' })
       assert(ran)
     })
 
-    it('passes machine to enter function', () => {
+    it('passes machine to enter function', async () => {
       let passed = false
       const m = createMachine({
         initial: 'foo',
@@ -114,14 +114,14 @@ describe('Machine', () => {
           enter: (value) => passed = (value === m)
         }
       })
-      m.start()
-      m.send({ type: 'bar' })
+      await m.start()
+      await m.send({ type: 'bar' })
       assert(passed)
     })
   })
 
   describe('state change actions', () => {
-    it('runs action for target event', () => {
+    it('runs action for target event', async () => {
       let ran = false
       const m = createMachine({
         initial: 'foo',
@@ -129,12 +129,12 @@ describe('Machine', () => {
           on: { bar: { action: () => ran = true } }
         }
       })
-      m.start()
+      await m.start()
       m.send({ type: 'bar' })
       assert(ran)
     })
 
-    it('passes event as argument to action', () => {
+    it('passes event as argument to action', async () => {
       let passed = false
       const event = { type: 'bar' }
       const m = createMachine({
@@ -143,8 +143,8 @@ describe('Machine', () => {
           on: { bar: { action: (e) => passed = (e === event) } }
         }
       })
-      m.start()
-      m.send(event)
+      await m.start()
+      await m.send(event)
       assert(passed)
     })
   })

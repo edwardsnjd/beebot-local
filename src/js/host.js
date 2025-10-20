@@ -54,7 +54,7 @@ const m = createMachine({
     },
   },
 })
-m.start()
+await m.start()
 
 const mgr = connectionsManager()
 

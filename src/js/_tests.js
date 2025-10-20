@@ -21,6 +21,17 @@ export const assertThrows = (fn, msg) => {
   if (!threw) throw Error(msg || `${fn} did not throw`)
 }
 
+/** Throw unless the given async function throws. */
+export const assertThrowsAsync = async (fn, msg) => {
+  let threw = false
+  try {
+    await fn()
+  } catch {
+    threw = true
+  }
+  if (!threw) throw Error(msg || `${fn} did not throw`)
+}
+
 let tests = []
 
 let labels = []
