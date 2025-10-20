@@ -167,9 +167,9 @@ export const createLevel = (levels) => {
   return { current, set, subscribe }
 }
 
-export const createInterpreter = (b, findWall) => {
+export const createInterpreter = (b, isValid) => {
   if (!b) throw 'Must supply the bot to move'
-  if (!findWall) throw 'Must supply the map'
+  if (!isValid) throw 'Must supply the function to check commands'
 
   let command = null
   let index = null
@@ -189,7 +189,7 @@ export const createInterpreter = (b, findWall) => {
 
   const step = (cmd, idx, _all) => () => {
     set(cmd, idx)
-    const ok = canMove(findWall, b.current(), cmd)
+    const ok = isValid(b.current(), cmd)
     const action = ok ? actions[cmd] : waggle
     return action()
   }
@@ -206,28 +206,35 @@ export const createInterpreter = (b, findWall) => {
   return { current, run, subscribe }
 }
 
-const canMove = (findWall, current, command) => {
-  const { position, orientation: { direction } } = current
+export const canMove = (wallsFn) => {
+  const findWall = (type, x, y) =>
+    wallsFn()
+      .filter(w => w.type === type)
+      .find(w => w.position.x === x && w.position.y === y)
 
-  switch (command) {
-    case Commands.Forwards:
-      // Look for wall in direction
-      switch (direction) {
-        case Directions.Up: return !findWall(Wall.HORIZ, position.x, position.y)
-        case Directions.Right: return !findWall(Wall.VERT, position.x + 1, position.y)
-        case Directions.Down: return !findWall(Wall.HORIZ, position.x, position.y + 1)
-        case Directions.Left: return !findWall(Wall.VERT, position.x, position.y)
-      }
-    case Commands.Backwards:
-      // Look for wall in opposite direction
-      switch (direction) {
-        case Directions.Up: return !findWall(Wall.HORIZ, position.x, position.y + 1)
-        case Directions.Right: return !findWall(Wall.VERT, position.x, position.y)
-        case Directions.Down: return !findWall(Wall.HORIZ, position.x, position.y)
-        case Directions.Left: return !findWall(Wall.VERT, position.x + 1, position.y)
-      }
-    default:
-      return true
+  return (current, command) => {
+    const { position, orientation: { direction } } = current
+
+    switch (command) {
+      case Commands.Forwards:
+        // Look for wall in direction
+        switch (direction) {
+          case Directions.Up: return !findWall(Wall.HORIZ, position.x, position.y)
+          case Directions.Right: return !findWall(Wall.VERT, position.x + 1, position.y)
+          case Directions.Down: return !findWall(Wall.HORIZ, position.x, position.y + 1)
+          case Directions.Left: return !findWall(Wall.VERT, position.x, position.y)
+        }
+      case Commands.Backwards:
+        // Look for wall in opposite direction
+        switch (direction) {
+          case Directions.Up: return !findWall(Wall.HORIZ, position.x, position.y + 1)
+          case Directions.Right: return !findWall(Wall.VERT, position.x, position.y)
+          case Directions.Down: return !findWall(Wall.HORIZ, position.x, position.y)
+          case Directions.Left: return !findWall(Wall.VERT, position.x + 1, position.y)
+        }
+      default:
+        return true
+    }
   }
 }
 

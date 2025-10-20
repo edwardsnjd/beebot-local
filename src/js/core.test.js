@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 import { describe, it, assert, assertThrows, assertEqual } from './_tests.js'
-import { createBot, createProgram, createMachine, createInterpreter, Commands } from './core.js'
+import { canMove, createBot, createProgram, createMachine, createInterpreter, Commands } from './core.js'
 import { parse } from './map.js'
 
 describe('Machine', () => {
@@ -161,12 +161,12 @@ describe('Interpreter', () => {
     })
 
     it('accepts valid config', () => {
-      const m = createInterpreter({}, {})
+      const m = createInterpreter({}, () => true)
       assert(m)
     })
 
     it('has null state before started', () => {
-      const m = createInterpreter({}, {})
+      const m = createInterpreter({}, () => true)
       const { command, index } = m.current()
       assertEqual(command, null)
       assertEqual(index, null)
@@ -176,16 +176,16 @@ describe('Interpreter', () => {
   describe('running a program', () => {
     it('raises without program', () => {
       const b = createBot()
-      const map = parse([])
-      const m = createInterpreter(b, map)
+      const canMove = () => true
+      const m = createInterpreter(b, canMove)
 
       assertThrows(() => m.run())
     })
 
     it('accepts empty program', () => {
       const b = createBot()
-      const map = parse([])
-      const m = createInterpreter(b, map)
+      const canMove = () => true
+      const m = createInterpreter(b, canMove)
 
       const p = createProgram()
       m.run(p)
@@ -193,8 +193,8 @@ describe('Interpreter', () => {
 
     it('executes program on bot', async () => {
       const b = createBot()
-      const map = parse([])
-      const m = createInterpreter(b, map)
+      const canMove = () => true
+      const m = createInterpreter(b, canMove)
 
       const p = createProgram()
       p.add(Commands.Forwards)
@@ -215,7 +215,8 @@ describe('Interpreter', () => {
         '   ',
         '+ +',
       ])
-      const m = createInterpreter(b, map)
+      const isValid = canMove(() => map.walls)
+      const m = createInterpreter(b, isValid)
 
       const p = createProgram()
       p.add(Commands.Forwards)
@@ -234,7 +235,8 @@ describe('Interpreter', () => {
         '     ',
         '+ + +',
       ])
-      const m = createInterpreter(b, map)
+      const isValid = canMove(() => map.walls)
+      const m = createInterpreter(b, isValid)
 
       const p = createProgram()
       p.add(Commands.Left)
@@ -255,7 +257,8 @@ describe('Interpreter', () => {
         '       ',
         '+ + + +',
       ])
-      const m = createInterpreter(b, map)
+      const isValid = canMove(() => map.walls)
+      const m = createInterpreter(b, isValid)
 
       const p = createProgram()
       p.add(Commands.Left)

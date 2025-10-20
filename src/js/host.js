@@ -1,10 +1,11 @@
 import {
-  connectionsManager,
-  createBot,
-  createInterpreter,
-  createLevel,
-  createMachine,
-  createProgram,
+    canMove,
+    connectionsManager,
+    createBot,
+    createInterpreter,
+    createLevel,
+    createMachine,
+    createProgram,
 } from './core.js'
 import { levels } from './map.js'
 import { listenForRemotes } from './peers.js'
@@ -31,13 +32,8 @@ l.set(levels[0].code)
 b.setHome(l.current().map.home)
 b.goHome()
 
-const findWall = (type, x, y) =>
-  l.current()
-    .map.walls
-    .filter(w => w.type === type)
-    .find(w => w.position.x === x && w.position.y === y)
-
-const i = createInterpreter(b, findWall)
+const isOkMove = canMove(() => l.current().map.walls)
+const i = createInterpreter(b, isOkMove)
 
 const m = createMachine({
   initial: 'idle',
