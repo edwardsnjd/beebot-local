@@ -42,9 +42,14 @@ export const createMachine = (config) => {
 
   const { subscribe, notify } = eventHub('machine')
 
+  const setValue = async (newState) => {
+    state = newState
+    await notify(state)
+  }
+
   const current = () => state
 
-  const start = () => enter(config.initial)
+  const start = () => setValue(config.initial)
 
   const send = async (e) => {
     if (!e) throw 'Must provide event to send'
@@ -55,18 +60,15 @@ export const createMachine = (config) => {
 
     const { action, target } = onSend
     if (action) await action(e)
-    if (target) await enter(target)
+    if (target) await setValue(target)
   }
 
   const result = { current, start, send, subscribe }
 
-  const enter = async (newState) => {
-    state = newState
-    await notify(state)
-
+  subscribe(async (state) => {
     const onEnter = config[state]?.enter
     if (onEnter) await onEnter(result)
-  }
+  })
 
   return result
 }
