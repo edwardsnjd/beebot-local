@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 import { describe, it, assert, assertThrows, assertThrowsAsync, assertEqual } from './_tests.js'
-import { canMove, createBot, createProgram, createMachine, createInterpreter, Commands } from './core.js'
+import { canMove, createBot, createProgram, createMachine, createInterpreter, Commands, Directions } from './core.js'
 import { parse } from './map.js'
 
 describe('Machine', () => {
@@ -278,6 +278,117 @@ describe('Interpreter', () => {
       const { position } = b.current()
       assertEqual(position.x, 0)
       assertEqual(position.y, 0)
+    })
+  })
+})
+
+describe('Bot', () => {
+  describe('creation', () => {
+    it('does not need config', () => {
+      const b = createBot()
+      assert(b)
+    })
+
+    it('has home at origin before started', () => {
+      const b = createBot()
+      const { home } = b.current()
+      assertEqual(home.x, 0)
+      assertEqual(home.y, 0)
+    })
+
+    it('has position at origin before started', () => {
+      const b = createBot()
+      const { position } = b.current()
+      assertEqual(position.x, 0)
+      assertEqual(position.y, 0)
+    })
+
+    it('has 0 orientation before started', () => {
+      const b = createBot()
+      const { orientation } = b.current()
+      assertEqual(orientation.direction, Directions.Up)
+      assertEqual(orientation.angle, 0)
+    })
+  })
+
+  describe('actions', () => {
+    it('can move forwards', () => {
+      const b = createBot()
+      b.forward()
+      b.forward()
+
+      const { position } = b.current()
+      assertEqual(position.x, 0)
+      assertEqual(position.y, -2)
+    })
+
+    it('can move backwards', () => {
+      const b = createBot()
+      b.backward()
+      b.backward()
+
+      const { position } = b.current()
+      assertEqual(position.x, 0)
+      assertEqual(position.y, 2)
+    })
+
+    it('can turn right on the spot', () => {
+      const b = createBot()
+      b.right()
+
+      const { position, orientation } = b.current()
+      assertEqual(position.x, 0)
+      assertEqual(position.y, 0)
+      assertEqual(orientation.direction, Directions.Right)
+      assertEqual(orientation.angle, 90)
+    })
+
+    it('can turn left on the spot', () => {
+      const b = createBot()
+      b.left()
+
+      const { position, orientation } = b.current()
+      assertEqual(position.x, 0)
+      assertEqual(position.y, 0)
+      assertEqual(orientation.direction, Directions.Left)
+      assertEqual(orientation.angle, -90)
+    })
+
+    it('moves left if turned right then backwards', () => {
+      const b = createBot()
+      b.right()
+      b.backward()
+
+      const { position, orientation } = b.current()
+      assertEqual(position.x, -1)
+      assertEqual(position.y, 0)
+      assertEqual(orientation.direction, Directions.Right)
+      assertEqual(orientation.angle, 90)
+    })
+  })
+
+  describe('home actions', () => {
+    it('can return home', () => {
+      const b = createBot()
+      b.forward()
+      b.forward()
+      b.goHome()
+
+      const { position } = b.current()
+      assertEqual(position.x, 0)
+      assertEqual(position.y, 0)
+    })
+
+    it('can return to a different home', () => {
+      const b = createBot()
+      b.forward()
+      b.setHome({ x: 100, y: 42 })
+      b.forward()
+      b.goHome()
+
+      const { position } = b.current()
+      assertEqual(position.x, 100)
+      assertEqual(position.y, 42)
     })
   })
 })
