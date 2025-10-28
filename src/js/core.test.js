@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 import { describe, it, assert, assertThrows, assertThrowsAsync, assertEqual } from './_tests.js'
-import { canMove, createBot, createProgram, createMachine, createInterpreter, Commands, Directions } from './core.js'
+import { canMove, createBot, createProgram, createMachine, createInterpreter, Commands, Directions, eventHub } from './core.js'
 import { parse } from './map.js'
 
 describe('Machine', () => {
@@ -401,5 +401,33 @@ describe('Bot', () => {
       assertEqual(position.x, 100)
       assertEqual(position.y, 42)
     })
+  })
+})
+
+describe('Event hub', () => {
+  it('accepts subscribers', () => {
+    const h = eventHub('foo')
+
+    const cb1 = () => {}
+    const cb2 = () => {}
+
+    h.subscribe(cb1)
+  })
+
+  it('notifies subscribers async', async () => {
+    const h = eventHub('foo')
+
+    let called1 = false
+    let called2 = false
+    const cb1 = () => called1 = true
+    const cb2 = () => called2 = true
+
+    h.subscribe(cb1)
+    h.subscribe(cb2)
+
+    await h.notify(42)
+
+    assertEqual(called1, true)
+    assertEqual(called2, true)
   })
 })
