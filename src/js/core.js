@@ -42,12 +42,12 @@ export const createMachine = (config) => {
 
   const { subscribe, notify } = eventHub('machine')
 
+  const current = () => state
+
   const setValue = async (newState) => {
     state = newState
     await notify(state)
   }
-
-  const current = () => state
 
   const start = () => setValue(config.initial)
 
@@ -79,18 +79,14 @@ export const createProgram = () => {
   const { subscribe, notify } = eventHub('program')
 
   const current = () => program
-  const add = (cmd) => {
-    program.push(cmd)
-    notify(program)
+  const setValue = async (newProgram) => {
+    program = newProgram
+    await notify(program)
   }
-  const back = () => {
-    program.pop()
-    notify(program)
-  }
-  const reset = () => {
-    program = []
-    notify(program)
-  }
+
+  const add = (cmd) => setValue([...program, cmd])
+  const back = () => setValue(program.slice(0, -1))
+  const reset = () => setValue([])
 
   const interpret = (actionFn) =>
     Promise.seq(program.map(actionFn))
@@ -101,29 +97,38 @@ export const createProgram = () => {
 export const Directions = { Up: 0, Right: 1, Down: 2, Left: 3 }
 
 export const createBot = () => {
-  let home = { x: 0, y: 0 }
-  let position = { x: 0, y: 0 }
-  let orientation = { direction: Directions.Up, angle: 0 }
+  let state = {
+    position: { x: 0, y: 0 },
+    orientation: { direction: Directions.Up, angle: 0 },
+    home: { x: 0, y: 0 },
+  }
 
   const { subscribe, notify } = eventHub('bot')
 
-  const current = () => ({ type: 'current', position, orientation })
-  const moved = () => ({ type: 'moved', position, orientation })
-  const waggled = () => ({ type: 'waggled', position, orientation })
-
-  const move = (newPosition, newOrientation) => {
-    position = newPosition
-    orientation = newOrientation
+  const setValue = (newState) => {
+    state = newState
     return notify(moved())
   }
+  const updateValue = (updateFn) => setValue(updateFn(state))
+  const mergeValue = (updateFn) => setValue({ ...state, ...updateFn(state) })
 
-  const changePosition = (dx, dy) => ({
-    x: position.x + dx,
-    y: position.y + dy,
+  // Events
+  const current = () => ({ type: 'current', ...state })
+  const moved = () => ({ type: 'moved', ...state })
+  const waggled = () => ({ type: 'waggled', ...state })
+
+  // Update functions
+  const changePosition = (dx, dy) => ({ position }) => ({
+    position: {
+      x: position.x + dx,
+      y: position.y + dy,
+    },
   })
-  const changeOrientation = (orientation, change) => ({
-    direction: (orientation.direction + 4 + change) % 4,
-    angle: orientation.angle + change * 90,
+  const changeOrientation = (change) => ({ orientation }) => ({
+    orientation: {
+      direction: (orientation.direction + 4 + change) % 4,
+      angle: orientation.angle + change * 90,
+    },
   })
 
   const orientationVectors = {
@@ -132,23 +137,25 @@ export const createBot = () => {
     [Directions.Down]: { x: 0, y: 1 },
     [Directions.Left]: { x: -1, y: 0 },
   }
+
+  // Actions
   const forward = () => {
-    const change = orientationVectors[orientation.direction]
-    return move(changePosition(change.x, change.y), orientation)
+    const change = orientationVectors[state.orientation.direction]
+    return mergeValue(changePosition(change.x, change.y))
   }
   const backward = () => {
-    const change = orientationVectors[orientation.direction]
-    return move(changePosition(-change.x, -change.y), orientation)
+    const change = orientationVectors[state.orientation.direction]
+    return mergeValue(changePosition(-change.x, -change.y))
   }
-  const right = () => move(position, changeOrientation(orientation, 1))
-  const left = () => move(position, changeOrientation(orientation, -1))
+  const right = () => mergeValue(changeOrientation(1))
+  const left = () => mergeValue(changeOrientation(-1))
   const pause = () => sleep(1000)
   const waggle = () => notify(waggled())
-  const setHome = (newHome) => home = newHome
-  const goHome = () => move(
-    home,
-    changeOrientation(orientation, (-orientation.angle / 90)),
-  )
+  const setHome = (newHome) => mergeValue(() => ({ home: newHome }))
+  const goHome = () => mergeValue((s) => ({
+    position: s.home,
+    ...changeOrientation(-state.orientation.angle / 90)(s),
+  }))
 
   return { current, forward, right, backward, left, pause, setHome, goHome, waggle, subscribe }
 }
