@@ -365,6 +365,17 @@ describe('Bot', () => {
       assertEqual(orientation.direction, Directions.Right)
       assertEqual(orientation.angle, 90)
     })
+
+    it('waggles on the spot', () => {
+      const b = createBot()
+      b.waggle()
+
+      const { position, orientation } = b.current()
+      assertEqual(position.x, 0)
+      assertEqual(position.y, 0)
+      assertEqual(orientation.direction, Directions.Up)
+      assertEqual(orientation.angle, 0)
+    })
   })
 
   describe('home actions', () => {
