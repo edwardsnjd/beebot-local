@@ -15,9 +15,7 @@ export const sleep = (delay) =>
 Promise.seq = (ps) =>
   ps.reduce((acc, next) => acc.then(next), Promise.resolve())
 
-/**
- * Create a generic event hub with a single topic.
- */
+/** Create a generic asynchronous event hub with a single topic. */
 export const eventHub = (name = '') => {
   let listeners = []
 
@@ -25,10 +23,74 @@ export const eventHub = (name = '') => {
     listeners.push(cb)
     return () => listeners = listeners.filter(l => l !== cb)
   }
+
   const notify = (state) =>
     Promise.seq(listeners.map(l => () => l(state)))
 
   return { subscribe, notify }
+}
+
+/** Create a generic synchronous event hub with a single topic. */
+const syncEventHub = () => {
+  let listeners = []
+
+  const subscribe = (cb) => {
+    listeners.push(cb)
+    return () => listeners = listeners.filter(l => l !== cb)
+  }
+
+  const notify = (state) =>
+    listeners.forEach((l) => l(state))
+
+  return { subscribe, notify }
+}
+
+// Global signal state
+let currentEffects = []
+
+export const signal = (init) => {
+  let state = init
+
+  const { subscribe, notify } = syncEventHub()
+
+  const getValue = () => {
+    if (currentEffects.length > 0) {
+      subscribe(currentEffects[currentEffects.length - 1])
+    }
+    return state
+  }
+
+  const setValue = (newState) => {
+    state = newState
+    return notify(state)
+  }
+
+  const updateValue = (fn) => setValue(fn(state))
+
+  return { getValue, setValue, updateValue, subscribe }
+}
+
+export const effect = (fn) => {
+  currentEffects.push(fn)
+  fn()
+  currentEffects.pop()
+}
+
+export const computed = (fn) => {
+  let state = null
+  let stale = true
+
+  const getValue = () => {
+    if (stale) {
+      state = fn()
+      stale = false
+    }
+    return state
+  }
+
+  effect(() => stale = true)
+
+  return { getValue }
 }
 
 /**

@@ -2,6 +2,7 @@
 
 import { describe, it, assert, assertThrows, assertThrowsAsync, assertEqual } from './_tests.js'
 import { canMove, createBot, createProgram, createMachine, createInterpreter, Commands, Directions, eventHub } from './core.js'
+import { signal, effect, computed } from './core.js'
 import { parse } from './map.js'
 
 describe('Machine', () => {
@@ -37,7 +38,7 @@ describe('Machine', () => {
     it('explodes if sent {}', async () => {
       const m = createMachine({ initial: 'foo' })
       await m.start()
-      assertThrowsAsync(async () => await m.send({ }))
+      assertThrowsAsync(async () => await m.send({}))
     })
 
     it('accepts valid event', async () => {
@@ -100,7 +101,7 @@ describe('Machine', () => {
       })
       await m.start()
       await m.send({ type: 'bar' })
-      assert(ran)
+      assertEqual(ran, true)
     })
 
     it('passes machine to enter function', async () => {
@@ -408,8 +409,8 @@ describe('Event hub', () => {
   it('accepts subscribers', () => {
     const h = eventHub('foo')
 
-    const cb1 = () => {}
-    const cb2 = () => {}
+    const cb1 = () => { }
+    const cb2 = () => { }
 
     h.subscribe(cb1)
   })
@@ -429,5 +430,142 @@ describe('Event hub', () => {
 
     assertEqual(called1, true)
     assertEqual(called2, true)
+  })
+})
+
+describe('Signal', () => {
+  describe('value', () => {
+    it('returns initial value', () => {
+      const s = signal(42)
+      assertEqual(s.getValue(), 42)
+    })
+
+    it('accepts new value', () => {
+      const s = signal(42)
+      s.setValue(10)
+      assertEqual(s.getValue(), 10)
+    })
+
+    it('accepts update function', () => {
+      const s = signal(42)
+      s.updateValue((s) => s + 1)
+      assertEqual(s.getValue(), 43)
+    })
+  })
+
+  describe('subscribers', () => {
+    it('notifies subscribers on change', () => {
+      const s = signal(0)
+
+      let val1 = null
+      let val2 = null
+      const cb1 = val => val1 = val
+      const cb2 = val => val2 = val
+
+      s.subscribe(cb1)
+      s.subscribe(cb2)
+
+      s.setValue(42)
+
+      assertEqual(val1, 42)
+      assertEqual(val2, 42)
+    })
+
+    it('notifies subscriber of each change', () => {
+      const s = signal(0)
+
+      const vals = []
+      const cb = val => vals.push(val)
+
+      s.subscribe(cb)
+
+      s.setValue(42)
+      s.setValue(100)
+
+      assertEqual(vals.length, 2)
+      assertEqual(vals[0], 42)
+      assertEqual(vals[1], 100)
+    })
+
+    it('notifies subscribers in turn', () => {
+      const s = signal(0)
+
+      const calls = []
+      const cb1 = () => calls.push('cb1')
+      const cb2 = () => calls.push('cb2')
+
+      s.subscribe(cb1)
+      s.subscribe(cb2)
+
+      s.setValue(42)
+
+      assertEqual(calls.length, 2)
+      assertEqual(calls[0], 'cb1')
+      assertEqual(calls[1], 'cb2')
+    })
+  })
+})
+
+describe('Effect', () => {
+  it('executes immediately', () => {
+    const s1 = signal(42)
+
+    let val = null
+    effect(() => val = s1.getValue())
+
+    assertEqual(val, 42)
+  })
+
+  it('executes again when underlying signal updates', () => {
+    const s1 = signal(0)
+
+    let val = null
+    effect(() => val = s1.getValue())
+
+    s1.setValue(42)
+
+    assertEqual(val, 42)
+  })
+})
+
+describe('Computed', () => {
+  it('calculates a value based on no signal', () => {
+    const c = computed(() => 42)
+
+    assertEqual(c.getValue(), 42)
+  })
+
+  it('calculates a value based on another signal', () => {
+    const s = signal(41)
+
+    const c = computed(() => s.getValue() + 1)
+
+    assertEqual(c.getValue(), 42)
+  })
+
+  it('calculates a value based on the current signal value', () => {
+    const s = signal(0)
+    const c = computed(() => s.getValue() + 1)
+
+    s.setValue(41)
+
+    assertEqual(c.getValue(), 42)
+  })
+
+  it('does not evaluate until asked', () => {
+    let called = false
+
+    computed(() => called = true)
+
+    assertEqual(called, false)
+  })
+
+  it('caches until signal changed', () => {
+    let called = 0
+
+    const c = computed(() => called += 1)
+
+    assertEqual(c.getValue(), 1)
+    assertEqual(c.getValue(), 1)
   })
 })
