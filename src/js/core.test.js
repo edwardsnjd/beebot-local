@@ -434,97 +434,21 @@ describe('Event hub', () => {
 })
 
 describe('Signal', () => {
-  describe('value', () => {
-    it('returns initial value', () => {
-      const s = signal(42)
-      assertEqual(s.getValue(), 42)
-    })
-
-    it('accepts new value', () => {
-      const s = signal(42)
-      s.setValue(10)
-      assertEqual(s.getValue(), 10)
-    })
-
-    it('accepts update function', () => {
-      const s = signal(42)
-      s.updateValue((s) => s + 1)
-      assertEqual(s.getValue(), 43)
-    })
+  it('returns initial value', () => {
+    const s = signal(42)
+    assertEqual(s.getValue(), 42)
   })
 
-  describe('subscribers', () => {
-    it('notifies subscribers on change', () => {
-      const s = signal(0)
-
-      let val1 = null
-      let val2 = null
-      const cb1 = val => val1 = val
-      const cb2 = val => val2 = val
-
-      s.subscribe(cb1)
-      s.subscribe(cb2)
-
-      s.setValue(42)
-
-      assertEqual(val1, 42)
-      assertEqual(val2, 42)
-    })
-
-    it('notifies subscriber of each change', () => {
-      const s = signal(0)
-
-      const vals = []
-      const cb = val => vals.push(val)
-
-      s.subscribe(cb)
-
-      s.setValue(42)
-      s.setValue(100)
-
-      assertEqual(vals.length, 2)
-      assertEqual(vals[0], 42)
-      assertEqual(vals[1], 100)
-    })
-
-    it('notifies subscribers in turn', () => {
-      const s = signal(0)
-
-      const calls = []
-      const cb1 = () => calls.push('cb1')
-      const cb2 = () => calls.push('cb2')
-
-      s.subscribe(cb1)
-      s.subscribe(cb2)
-
-      s.setValue(42)
-
-      assertEqual(calls.length, 2)
-      assertEqual(calls[0], 'cb1')
-      assertEqual(calls[1], 'cb2')
-    })
-  })
-})
-
-describe('Effect', () => {
-  it('executes immediately', () => {
-    const s1 = signal(42)
-
-    let val = null
-    effect(() => val = s1.getValue())
-
-    assertEqual(val, 42)
+  it('accepts new value', () => {
+    const s = signal(42)
+    s.setValue(10)
+    assertEqual(s.getValue(), 10)
   })
 
-  it('executes again when underlying signal updates', () => {
-    const s1 = signal(0)
-
-    let val = null
-    effect(() => val = s1.getValue())
-
-    s1.setValue(42)
-
-    assertEqual(val, 42)
+  it('accepts update function', () => {
+    const s = signal(42)
+    s.updateValue((s) => s + 1)
+    assertEqual(s.getValue(), 43)
   })
 })
 
@@ -569,3 +493,91 @@ describe('Computed', () => {
     assertEqual(c.getValue(), 1)
   })
 })
+
+describe('Effect', () => {
+  it('executes immediately', () => {
+    let called = false
+
+    effect(() => called = true)
+
+    assertEqual(called, true)
+  })
+
+  it('can read a signal', () => {
+    const s1 = signal(42)
+
+    let val = null
+    effect(() => val = s1.getValue())
+
+    assertEqual(val, 42)
+  })
+
+  it('multiple effects can all read a signal', () => {
+    const s = signal(42)
+
+    let val1 = null
+    let val2 = null
+    effect(() => val1 = s.getValue())
+    effect(() => val2 = s.getValue())
+
+    assertEqual(val1, 42)
+    assertEqual(val2, 42)
+  })
+
+  it('executes again when underlying signal updates', () => {
+    const s = signal(0)
+
+    let val = null
+    effect(() => val = s.getValue())
+
+    s.setValue(42)
+
+    assertEqual(val, 42)
+  })
+
+  it('executes multiple effects when underlying signal updates', () => {
+    const s = signal(0)
+
+    let val1 = null
+    let val2 = null
+    effect(() => val1 = s.getValue())
+    effect(() => val2 = s.getValue())
+
+    s.setValue(42)
+
+    assertEqual(val1, 42)
+    assertEqual(val2, 42)
+  })
+
+  it('executes each each change to a signal', () => {
+    const s = signal(0)
+
+    const vals = []
+    effect(() => vals.push(s.getValue()))
+
+    s.setValue(42)
+    s.setValue(100)
+
+    assertEqual(vals.length, 3)
+    assertEqual(vals[0], 0)
+    assertEqual(vals[1], 42)
+    assertEqual(vals[2], 100)
+  })
+
+  it('runs effects in order added', () => {
+    const s = signal(0)
+
+    const calls = []
+    effect(() => { s.getValue(); calls.push('first') })
+    effect(() => { s.getValue(); calls.push('second') })
+
+    s.setValue(42)
+
+    assertEqual(calls.length, 4)
+    assertEqual(calls[0], 'first')
+    assertEqual(calls[1], 'second')
+    assertEqual(calls[2], 'first')
+    assertEqual(calls[3], 'second')
+  })
+})
+

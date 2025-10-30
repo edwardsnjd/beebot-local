@@ -67,7 +67,7 @@ export const signal = (init) => {
 
   const updateValue = (fn) => setValue(fn(state))
 
-  return { getValue, setValue, updateValue, subscribe }
+  return { getValue, setValue, updateValue }
 }
 
 export const effect = (fn) => {
