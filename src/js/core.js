@@ -45,54 +45,6 @@ const syncEventHub = () => {
   return { subscribe, notify }
 }
 
-// Global signal state
-let currentEffects = []
-
-export const signal = (init) => {
-  let state = init
-
-  const { subscribe, notify } = syncEventHub()
-
-  const getValue = () => {
-    if (currentEffects.length > 0) {
-      subscribe(currentEffects[currentEffects.length - 1])
-    }
-    return state
-  }
-
-  const setValue = (newState) => {
-    state = newState
-    return notify(state)
-  }
-
-  const updateValue = (fn) => setValue(fn(state))
-
-  return { getValue, setValue, updateValue }
-}
-
-export const effect = (fn) => {
-  currentEffects.push(fn)
-  fn()
-  currentEffects.pop()
-}
-
-export const computed = (fn) => {
-  let state = null
-  let stale = true
-
-  const getValue = () => {
-    if (stale) {
-      state = fn()
-      stale = false
-    }
-    return state
-  }
-
-  effect(() => stale = true)
-
-  return { getValue }
-}
-
 /**
  * Create a state machine from the given state config.
  */
