@@ -1,6 +1,7 @@
 import { openSocketForGame } from './signalling.js'
 import { createRemote } from './peers.js'
-import { controlsUi } from './ui.js'
+import { levels } from './map.js'
+import { controlsUi, levelsUi } from './ui.js'
 import { eventHub } from './core.js'
 
 // Per connection constants
@@ -69,6 +70,7 @@ remote.connect()
 
 // UI: DOM
 const $connecting = document.getElementById('connecting')
+const $picker = document.getElementById('picker')
 const $controls = document.getElementById('controls')
 
 // UI: Connection
@@ -92,10 +94,14 @@ const renderConnection = connectionUi($connecting, gameId)
 renderConnection(remote.current())
 remote.subscribe(renderConnection)
 
+// UI: Picker
+const renderPicker = levelsUi($picker, levels, (code) => remote.send({ code }))
+
 // UI: Controls
 const renderControls = controlsUi($controls, remote.send)
 renderControls('idle')
 remote.onMessage((msg) => {
   console.log('host message:', msg)
   if (msg.state) renderControls(msg.state)
+  if (msg.level) renderPicker(msg.level)
 })

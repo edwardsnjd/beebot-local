@@ -68,11 +68,15 @@ listenForRemotes(config, (remote) => {
   mgr.add(remote)
 
   // Forward messages from remote to state machine
-  channel.onMessage((msg) => m.send(msg))
+  channel.onMessage((msg) => {
+    if (msg.type) m.send(msg)
+    if (msg.code) l.set(msg.code)
+  })
 
   // Forward all state changes to remote
   channel.send({ state: m.current() })
   m.subscribe((state) => channel.send({ state }))
+  l.subscribe((level) => channel.send({ level: { code: level.code } }))
 })
 
 // UI: DOM
