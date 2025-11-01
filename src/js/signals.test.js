@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-import { describe, it, assert, assertThrows, assertThrowsAsync, assertEqual } from './_tests.js'
+import { describe, it, assertEqual } from './_tests.js'
 import { signal, effect, computed } from './signals.js'
 
 describe('Signal', () => {
