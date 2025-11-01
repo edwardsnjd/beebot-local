@@ -222,5 +222,35 @@ describe('Effect', () => {
 
       assertEqual(val, 42)
     })
+
+    it('runs after any tracked signal changes', () => {
+      const s1 = signal(0)
+      const s2 = signal(0)
+
+      let val = null
+      effect(() => val = s1.getValue() + s2.getValue())
+
+      assertEqual(val, 0)
+
+      s1.setValue(21)
+      assertEqual(val, 21)
+
+      s2.setValue(21)
+      assertEqual(val, 42)
+    })
+
+    it('executes once after all computed dependencies have been marked as dirty', () => {
+      const s = signal(0)
+      const c1 = computed(() => s.getValue() === 0 ? 'zero' : 'non-zero')
+
+      const values = []
+      effect(() => values.push({ s: s.getValue(), c1: c1.getValue() }))
+
+      assertEqual(values.length, 1)
+
+      s.setValue(42)
+
+      assertEqual(values.length, 2)
+    })
   })
 })

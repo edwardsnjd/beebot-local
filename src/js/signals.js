@@ -1,4 +1,17 @@
-/** Global signal state */
+/** The interface used by the automatic dependency tracking. */
+const Interface = {
+  /** The property implemented on watchers that should be notified. */
+  MARK_DIRTY: Symbol('MarkDirty'),
+  shouldDirty: (o) => Interface.MARK_DIRTY in o,
+  dirty: (o) => o[Interface.MARK_DIRTY](),
+
+  /** The property implemented on watchers that should be run. */
+  RUN_EFFECT: Symbol('RunEffect'),
+  shouldRun: (o) => Interface.RUN_EFFECT in o,
+  run: (o) => o[Interface.RUN_EFFECT](),
+}
+
+/** Automatic signal dependency tracking. */
 class Dependencies {
   /** A map from watcher to what it's watching. */
   #watching = new Map()
@@ -8,44 +21,61 @@ class Dependencies {
   #activeWatchers = []
 
   /** Record any dependencies for the watcher. */
-  trace(watcher, fn) {
+  runWithTracking(watcher, fn) {
     // Reset this watcher's dependencies
     this.#watching.set(watcher, new Set())
 
-    // Run the function remembering this watcher for `watch`
+    // Run the function remembering this watcher as the current watcher
     this.#activeWatchers.push(watcher)
     const result = fn()
     this.#activeWatchers.pop()
     return result
   }
 
-  /** Register the given signal for the currently active watcher. */
-  watch(signal) {
-    if (this.#activeWatchers.length === 0) return
+  #currentWatcher() {
+    return this.#activeWatchers[this.#activeWatchers.length - 1]
+  }
 
-    const activeWatcher = this.#activeWatchers[this.#activeWatchers.length - 1]
+  /** Register the given signal for the currently active watcher. */
+  add(signal) {
+    const activeWatcher = this.#currentWatcher()
+    if (!activeWatcher) return
 
     // Ensure signal cache is initialised
     if (!this.#watchedBy.has(signal)) {
       this.#watchedBy.set(signal, new Set())
     }
 
-    // Add dependency to both caches
+    // Add dependency to both lookups
     this.#watchedBy.get(signal).add(activeWatcher)
     this.#watching.get(activeWatcher).add(signal)
   }
 
   /** Notify the given signal's dependents it is dirty. */
   dirty(signal) {
-    // Capture current watchers
-    const watchers = this.#watchedBy.get(signal) ?? new Set()
+    const toRun = this.#dirtyAndGather(signal)
 
-    // Unwire all related watchers
+    // Graph might have reached a given effect via multiple paths
+    // so there could be duplicates
+    new Set(toRun).forEach(Interface.run)
+  }
+
+  /** Dirty the given signal and gather effects to run. */
+  #dirtyAndGather(signal) {
+    // Capture any current watchers
+    const watchers = Array.from(this.#watchedBy.get(signal) ?? new Set())
+    const toDirty = watchers.filter(Interface.shouldDirty)
+    const toRun = watchers.filter(Interface.shouldRun)
+
+    // Unwire current watchers (will need to be updated)
     this.#watchedBy.delete(signal)
     watchers.forEach(watcher => this.#watching.delete(watcher))
 
     // Dirty each watcher
-    watchers.forEach(watcher => watcher.dirty())
+    toDirty.forEach(Interface.dirty)
+
+    // Collect any effects to run
+    return [ ...toRun, ...toDirty.flatMap(s => this.#dirtyAndGather(s)) ]
   }
 }
 
@@ -64,7 +94,7 @@ class Signal {
   }
 
   getValue() {
-    dependencies.watch(this)
+    dependencies.add(this)
     return this.#state
   }
 
@@ -89,17 +119,16 @@ class Computed {
 
   getValue() {
     if (this.#stale) {
-      this.#state = dependencies.trace(this, this.#fn)
+      this.#state = dependencies.runWithTracking(this, this.#fn)
       this.#stale = false
     }
 
-    dependencies.watch(this)
+    dependencies.add(this)
     return this.#state
   }
 
-  dirty() {
+  [Interface.MARK_DIRTY]() {
     this.#stale = true
-    dependencies.dirty(this)
   }
 }
 
@@ -109,15 +138,11 @@ class Effect {
 
   constructor(fn) {
     this.#fn = fn
-    this.#run()
+    this[Interface.RUN_EFFECT]()
   }
 
-  dirty() {
-    this.#run()
-  }
-
-  #run() {
-    dependencies.trace(this, this.#fn)
+  [Interface.RUN_EFFECT]() {
+    dependencies.runWithTracking(this, this.#fn)
   }
 }
 
