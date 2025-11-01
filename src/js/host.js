@@ -77,6 +77,10 @@ listenForRemotes(config, (remote) => {
   channel.send({ state: m.current() })
   m.subscribe((state) => channel.send({ state }))
   l.subscribe((level) => channel.send({ level: { code: level.code } }))
+
+  // Initialise state on remote
+  channel.send({ state: m.current() })
+  channel.send({ level: { code: l.current().code } })
 })
 
 // UI: DOM
