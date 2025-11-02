@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 import { describe, it, assert, assertThrows, assertThrowsAsync, assertEqual } from './_tests.js'
-import { canMove, createBot, createProgram, createMachine, createInterpreter, Commands, Directions, eventHub, sleep } from './core.js'
+import { canMove, createBot, createProgram, createMachine, createInterpreter, Commands, Directions, eventHub } from './core.js'
 import { parse } from './map.js'
 
 describe('Machine', () => {
