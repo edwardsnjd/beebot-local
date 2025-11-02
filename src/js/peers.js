@@ -66,8 +66,8 @@ export const createRemote = async (config, localId, remoteId, caller=false) => {
 export async function connectToPeer(signals, caller = false) {
   const connection = new RTCPeerConnection({
     // Configuration for ICE servers (STUN server needed for NAT traversal)
-    // iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
-    iceServers: [],
+    //iceServers: [],
+    iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
   })
 
   console.log('Opened a new RTCPeerConnection', { caller })
