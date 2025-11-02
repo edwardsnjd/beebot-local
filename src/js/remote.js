@@ -94,14 +94,26 @@ const renderConnection = connectionUi($connecting, gameId)
 renderConnection(remote.current())
 remote.subscribe(renderConnection)
 
+// Track current state
+let currentLevel = null
+let currentState = null
+
 // UI: Picker
 const renderPicker = levelsUi($picker, levels, (code) => remote.send({ code }))
+const updatePicker = (level, state) => {
+  currentLevel = level
+  currentState = state
+  renderPicker(currentLevel, currentState)
+}
+updatePicker({ code: levels[0].code }, 'idle')
 
 // UI: Controls
 const renderControls = controlsUi($controls, remote.send)
 renderControls('idle')
+
 remote.onMessage((msg) => {
   console.log('host message:', msg)
   if (msg.state) renderControls(msg.state)
-  if (msg.level) renderPicker(msg.level)
+  if (msg.state) updatePicker(currentLevel, msg.state)
+  if (msg.level) updatePicker(msg.level, currentState)
 })

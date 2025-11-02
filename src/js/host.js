@@ -98,7 +98,10 @@ ui.remoteLinkUi($remoteLink)(remoteUrl)
 
 // UI: Picker
 const renderPicker = ui.levelsUi($picker, levels, (code) => l.set(code))
-l.subscribe(renderPicker)
+const updatePicker = () => renderPicker(l.current(), m.current())
+updatePicker()
+l.subscribe(updatePicker)
+m.subscribe(updatePicker)
 
 // UI: Controls
 const renderControls = ui.controlsUi($controls, (cmd) => m.send(cmd))
@@ -119,8 +122,8 @@ l.subscribe(async (l) => {
 
 // UI: Program
 const renderProgram = ui.programUi($program)
-const updateProgram = () =>
-  renderProgram(p.current(), i.current())
+const updateProgram = () => renderProgram(p.current(), i.current())
+updateProgram()
 p.subscribe(updateProgram)
 i.subscribe(updateProgram)
 

@@ -31,7 +31,10 @@ export const levelsUi = ($el, levels, cb) => {
 
   $el.addEventListener('change', (e) => cb(e.target.value))
 
-  return (level) => $el.value = level.code
+  return (level, state) => {
+    $el.value = level.code
+    $el.disabled = (state === 'running')
+  }
 }
 
 export const controlsUi = ($el, sendEvent) => {
