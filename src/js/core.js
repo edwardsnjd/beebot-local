@@ -58,15 +58,7 @@ export const createMachine = (config) => {
 
   const current = () => state
 
-  const setValue = async (newState) => {
-    state = newState
-    await notify(state)
-    // Run enter action after notifying subscribers so UI updates immediately
-    const onEnter = config[state]?.enter
-    if (onEnter) await onEnter(result)
-  }
-
-  const start = () => setValue(config.initial)
+  const start = () => enter(config.initial)
 
   const send = async (e) => {
     if (!e) throw 'Must provide event to send'
@@ -77,10 +69,18 @@ export const createMachine = (config) => {
 
     const { action, target } = onSend
     if (action) await action(e)
-    if (target) await setValue(target)
+    if (target) await enter(target)
   }
 
   const result = { current, start, send, subscribe }
+
+  const enter = async (newState) => {
+    state = newState
+    await notify(state)
+
+    const onEnter = config[state]?.enter
+    if (onEnter) await onEnter(result)
+  }
 
   return result
 }
