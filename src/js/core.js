@@ -113,10 +113,10 @@ export const createProgram = () => {
 export const Directions = { Up: 0, Right: 1, Down: 2, Left: 3 }
 
 export const createBot = () => {
+  let home = { x: 0, y: 0 }
   let state = {
     position: { x: 0, y: 0 },
     orientation: { direction: Directions.Up, angle: 0 },
-    home: { x: 0, y: 0 },
   }
 
   const { subscribe, notify } = eventHub('bot')
@@ -125,7 +125,6 @@ export const createBot = () => {
     state = newState
     return notify(moved())
   }
-  const updateValue = (updateFn) => setValue(updateFn(state))
   const mergeValue = (updateFn) => setValue({ ...state, ...updateFn(state) })
 
   // Events
@@ -167,9 +166,9 @@ export const createBot = () => {
   const left = () => mergeValue(changeOrientation(-1))
   const pause = () => sleep(1000)
   const waggle = () => notify(waggled())
-  const setHome = (newHome) => mergeValue(() => ({ home: newHome }))
+  const setHome = (newHome) => home = newHome
   const goHome = () => mergeValue((s) => ({
-    position: s.home,
+    position: home,
     ...changeOrientation(-state.orientation.angle / 90)(s),
   }))
 
