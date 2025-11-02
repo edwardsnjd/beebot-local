@@ -56,6 +56,11 @@ export const createMachine = (config) => {
 
   const { subscribe, notify } = eventHub('machine')
 
+  const setValue = async (newState) => {
+    state = newState
+    await notify(state)
+  }
+
   const current = () => state
 
   const start = () => enter(config.initial)
@@ -75,8 +80,7 @@ export const createMachine = (config) => {
   const result = { current, start, send, subscribe }
 
   const enter = async (newState) => {
-    state = newState
-    await notify(state)
+    await setValue(newState)
 
     const onEnter = config[state]?.enter
     if (onEnter) await onEnter(result)

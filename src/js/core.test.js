@@ -149,86 +149,18 @@ describe('Machine', () => {
     })
   })
 
-  describe('state notifications during enter actions', () => {
-    it('notifies subscribers before enter action runs', async () => {
-      const notifications = []
-      const m = createMachine({
-        initial: 'idle',
-        idle: {
-          on: { go: { target: 'running' } }
-        },
-        running: {
-          enter: async (m) => {
-            // Simulate long-running task
-            await sleep(10)
-            m.send({ type: 'done' })
-          },
-          on: {
-            done: { target: 'idle' }
-          }
-        }
-      })
-
-      // Subscribe to state changes
-      m.subscribe((state) => {
-        notifications.push(state)
-      })
-
-      await m.start()
-      notifications.length = 0 // Clear initial notification
-
-      await m.send({ type: 'go' })
-
-      // Should have seen 'running' notification before enter completes
-      assert(notifications.length >= 1, 'Should have at least one notification')
-      assertEqual(notifications[0], 'running', 'First notification should be running state')
-    })
-
-    it('notifies UI subscribers immediately when state changes to running', async () => {
-      let stateWhenNotified = null
-      const m = createMachine({
-        initial: 'idle',
-        idle: {
-          on: { go: { target: 'running' } }
-        },
-        running: {
-          enter: async (m) => {
-            await sleep(50) // Long running program
-            m.send({ type: 'done' })
-          },
-          on: {
-            done: { target: 'idle' }
-          }
-        }
-      })
-
-      await m.start()
-
-      // Subscribe after start to simulate UI subscription
-      m.subscribe((state) => {
-        if (stateWhenNotified === null) {
-          stateWhenNotified = state
-        }
-      })
-
-      await m.send({ type: 'go' })
-
-      // UI should have been notified with 'running' state, not 'idle'
-      assertEqual(stateWhenNotified, 'running', 'UI should be notified during running state, not after')
-    })
-
-    it('demonstrates the actual bug: subscribers wait for enter to complete', async () => {
+  describe('order of operations', () => {
+    it('notifies subscribers before running enter actions', async () => {
       const events = []
+
       const m = createMachine({
         initial: 'idle',
         idle: {
           on: { go: { target: 'running' } }
         },
         running: {
-          enter: async (m) => {
-            events.push('enter-start')
-            await sleep(50)
-            events.push('enter-end')
+          enter: (m) => {
+            events.push('running:enter')
             m.send({ type: 'done' })
           },
           on: {
@@ -236,27 +168,46 @@ describe('Machine', () => {
           }
         }
       })
-
       await m.start()
 
-      // Subscribe to state changes (like UI does)
-      m.subscribe((state) => {
-        events.push(`subscriber-notified:${state}`)
-      })
+      m.subscribe((state) => events.push(state))
 
-      events.length = 0 // Clear any initial events
       await m.send({ type: 'go' })
 
-      // Check the order of events
-      console.log('Events:', events)
-      
-      // BUG: The subscriber should be notified of 'running' BEFORE enter-start
-      // but currently it's notified AFTER enter-end because Promise.seq waits
-      const runningNotificationIndex = events.indexOf('subscriber-notified:running')
-      const enterStartIndex = events.indexOf('enter-start')
-      
-      assert(runningNotificationIndex < enterStartIndex, 
-        `Subscriber should be notified (index ${runningNotificationIndex}) before enter starts (index ${enterStartIndex})`)
+      assertEqual(events.length, 3)
+      assertEqual(events[0], 'running')
+      assertEqual(events[1], 'running:enter')
+      assertEqual(events[2], 'idle')
+    })
+
+    it('notifies async subscribers before running async enter actions', async () => {
+      const events = []
+
+      const m = createMachine({
+        initial: 'idle',
+        idle: {
+          on: { go: { target: 'running' } }
+        },
+        running: {
+          enter: async (m) => {
+            events.push('running:enter')
+            m.send({ type: 'done' })
+          },
+          on: {
+            done: { target: 'idle' }
+          }
+        }
+      })
+      await m.start()
+
+      m.subscribe(async (state) => events.push(state))
+
+      await m.send({ type: 'go' })
+
+      assertEqual(events.length, 3)
+      assertEqual(events[0], 'running')
+      assertEqual(events[1], 'running:enter')
+      assertEqual(events[2], 'idle')
     })
   })
 })
