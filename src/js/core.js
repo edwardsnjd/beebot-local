@@ -61,6 +61,9 @@ export const createMachine = (config) => {
   const setValue = async (newState) => {
     state = newState
     await notify(state)
+    // Run enter action after notifying subscribers so UI updates immediately
+    const onEnter = config[state]?.enter
+    if (onEnter) await onEnter(result)
   }
 
   const start = () => setValue(config.initial)
@@ -78,11 +81,6 @@ export const createMachine = (config) => {
   }
 
   const result = { current, start, send, subscribe }
-
-  subscribe(async (state) => {
-    const onEnter = config[state]?.enter
-    if (onEnter) await onEnter(result)
-  })
 
   return result
 }
