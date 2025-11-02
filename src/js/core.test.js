@@ -148,6 +148,68 @@ describe('Machine', () => {
       assert(passed)
     })
   })
+
+  describe('order of operations', () => {
+    it('notifies subscribers before running enter actions', async () => {
+      const events = []
+
+      const m = createMachine({
+        initial: 'idle',
+        idle: {
+          on: { go: { target: 'running' } }
+        },
+        running: {
+          enter: (m) => {
+            events.push('running:enter')
+            m.send({ type: 'done' })
+          },
+          on: {
+            done: { target: 'idle' }
+          }
+        }
+      })
+      await m.start()
+
+      m.subscribe((state) => events.push(state))
+
+      await m.send({ type: 'go' })
+
+      assertEqual(events.length, 3)
+      assertEqual(events[0], 'running')
+      assertEqual(events[1], 'running:enter')
+      assertEqual(events[2], 'idle')
+    })
+
+    it('notifies async subscribers before running async enter actions', async () => {
+      const events = []
+
+      const m = createMachine({
+        initial: 'idle',
+        idle: {
+          on: { go: { target: 'running' } }
+        },
+        running: {
+          enter: async (m) => {
+            events.push('running:enter')
+            m.send({ type: 'done' })
+          },
+          on: {
+            done: { target: 'idle' }
+          }
+        }
+      })
+      await m.start()
+
+      m.subscribe(async (state) => events.push(state))
+
+      await m.send({ type: 'go' })
+
+      assertEqual(events.length, 3)
+      assertEqual(events[0], 'running')
+      assertEqual(events[1], 'running:enter')
+      assertEqual(events[2], 'idle')
+    })
+  })
 })
 
 describe('Interpreter', () => {

@@ -63,7 +63,7 @@ export const createMachine = (config) => {
     await notify(state)
   }
 
-  const start = () => setValue(config.initial)
+  const start = () => enter(config.initial)
 
   const send = async (e) => {
     if (!e) throw 'Must provide event to send'
@@ -74,15 +74,17 @@ export const createMachine = (config) => {
 
     const { action, target } = onSend
     if (action) await action(e)
-    if (target) await setValue(target)
+    if (target) await enter(target)
   }
 
   const result = { current, start, send, subscribe }
 
-  subscribe(async (state) => {
+  const enter = async (newState) => {
+    await setValue(newState)
+
     const onEnter = config[state]?.enter
     if (onEnter) await onEnter(result)
-  })
+  }
 
   return result
 }
